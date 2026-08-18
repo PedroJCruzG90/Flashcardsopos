@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f766e">
+<title>Flashcards · Tema 4 — Evolución del pensamiento económico</title>
+<style>
+  :root{
+    --teal:#0f766e; --teal-d:#0b5a54; --teal-l:#14958a;
+    --gold:#c9a227; --gold-d:#a8871a;
+    --cream:#f7f5ef; --card:#ffffff; --ink:#1f2937; --muted:#6b7280;
+    --line:#e5e1d6; --good:#15803d; --bad:#b45309;
+    --shadow:0 6px 22px rgba(15,118,110,.10);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,#f2efe6,#f7f5ef 220px);
+    color:var(--ink); line-height:1.5; padding:0 14px 60px; max-width:820px; margin:0 auto;
+  }
+  header{padding:20px 4px 8px}
+  h1{font-size:1.32rem;margin:0 0 4px;color:var(--teal-d);letter-spacing:-.2px}
+  .sub{color:var(--muted);font-size:.86rem;margin:0}
+  /* progress */
+  .stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 6px;font-size:.8rem}
+  .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted)}
+  .pill b{color:var(--ink)}
+  .bar{height:9px;background:#e7e3d7;border-radius:999px;overflow:hidden;margin:8px 0 2px}
+  .bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .4s ease}
+  /* level filter */
+  .levels{display:flex;gap:7px;overflow-x:auto;padding:10px 2px 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .levels::-webkit-scrollbar{display:none}
+  .lv{white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--teal-d);
+      padding:7px 12px;border-radius:999px;font-size:.8rem;font-weight:600;cursor:pointer;transition:.15s}
+  .lv small{display:block;font-weight:400;color:var(--muted);font-size:.68rem}
+  .lv.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .lv.active small{color:#d7efec}
+  /* card */
+  .stage{margin:14px 0 10px}
+  .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:.75rem;color:var(--muted)}
+  .cat{background:#eef6f5;color:var(--teal-d);border:1px solid #d9ece9;border-radius:999px;padding:3px 9px;font-weight:600}
+  .dom{display:flex;gap:4px;align-items:center}
+  .dot{width:9px;height:9px;border-radius:50%;background:#e0dccf;display:inline-block}
+  .dot.on{background:var(--gold)}
+  .badge{color:var(--good);font-weight:700}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+    padding:22px 20px;min-height:230px;display:flex;flex-direction:column;cursor:pointer;position:relative;
+    transition:transform .08s ease;
+  }
+  .card:active{transform:scale(.995)}
+  .qlabel{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold-d);font-weight:700;margin-bottom:8px}
+  .q{font-size:1.12rem;font-weight:600;color:var(--ink)}
+  .divider{height:1px;background:var(--line);margin:16px 0}
+  .a{font-size:1.02rem;color:#374151}
+  .a .alabel{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:700;display:block;margin-bottom:6px}
+  .hidden-a{display:flex;align-items:center;justify-content:center;flex:1;color:var(--muted);
+            font-size:.9rem;gap:8px;border:1.5px dashed var(--line);border-radius:12px;margin-top:14px;padding:20px}
+  .tap{font-weight:600;color:var(--teal)}
+  .reveal-anim{animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* rating */
+  .rate{display:flex;gap:10px;margin-top:16px}
+  .rate button{flex:1;border:none;border-radius:12px;padding:13px 8px;font-size:.92rem;font-weight:700;cursor:pointer;transition:.15s}
+  .r-bad{background:#fdf1e3;color:var(--bad);border:1px solid #f3dcc0}
+  .r-good{background:#e8f5ec;color:var(--good);border:1px solid #c8e6d2}
+  .rate button:active{transform:scale(.97)}
+  /* nav */
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{flex:1;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;
+              font-size:.9rem;font-weight:600;color:var(--teal-d);cursor:pointer}
+  .nav button.mid{flex:0 0 auto;padding:11px 16px}
+  .nav button:active{background:#f0ede4}
+  .counter{text-align:center;color:var(--muted);font-size:.8rem;margin-top:10px}
+  /* footer tools */
+  .tools{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:.78rem}
+  .tools a{color:var(--muted);text-decoration:underline;cursor:pointer}
+  details.help{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:2px 16px}
+  details.help summary{cursor:pointer;font-weight:600;color:var(--teal-d);padding:12px 0;font-size:.9rem}
+  details.help p{font-size:.86rem;color:#374151;margin:6px 0 14px}
+  .done-msg{text-align:center;padding:40px 10px;color:var(--muted)}
+  .kbd{font-size:.7rem;color:var(--muted);text-align:center;margin-top:8px}
+  @media(max-width:520px){ .kbd{display:none} h1{font-size:1.18rem} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tema 4 · Evolución del pensamiento económico</h1>
+  <p class="sub">Flashcards de repaso · clásica · crítica marxista · neoclásica — pulsa la tarjeta para ver la respuesta</p>
+
+  <div class="bar"><i id="barFill"></i></div>
+  <div class="stats">
+    <span class="pill"><b id="stDom">0</b> dominadas</span>
+    <span class="pill"><b id="stRep">0</b> en repaso</span>
+    <span class="pill"><b id="stTot">0</b> en este filtro</span>
+    <span class="pill" id="stPct">0% dominio</span>
+  </div>
+</header>
+
+<nav class="levels" id="levels"></nav>
+<nav class="levels" id="types"></nav>
+
+<section class="stage">
+  <div class="meta">
+    <span class="cat" id="cardCat">—</span>
+    <span class="dom" id="cardDom" title="Nivel de dominio (0–5)"></span>
+  </div>
+
+  <div class="card" id="card" onclick="reveal()">
+    <div id="frontBlock">
+      <span class="qlabel" id="qLevel">Pregunta</span>
+      <div class="q" id="qText">Cargando…</div>
+    </div>
+    <div id="hiddenA" class="hidden-a">👆 <span class="tap">Pulsa para ver la respuesta</span></div>
+    <div id="answerBlock" style="display:none">
+      <div class="divider"></div>
+      <div class="a"><span class="alabel">Respuesta</span><span id="aText"></span></div>
+    </div>
+  </div>
+
+  <div class="rate" id="rateRow" style="display:none">
+    <button class="r-bad" onclick="rate(false,event)">↻ Repasar</button>
+    <button class="r-good" onclick="rate(true,event)">✓ La sabía</button>
+  </div>
+
+  <div class="nav">
+    <button onclick="prev(event)">← Anterior</button>
+    <button class="mid" onclick="shuffle(event)">🔀 Barajar</button>
+    <button onclick="next(event)">Siguiente →</button>
+  </div>
+  <div class="counter" id="counter">—</div>
+  <div class="kbd">Atajos: <b>espacio</b> revelar · <b>←/→</b> navegar · <b>1</b> repasar · <b>2</b> la sabía</div>
+</section>
+
+<div class="tools">
+  <span id="modeTools"><a onclick="toggleOnlyPending()" id="pendLink">Mostrar solo pendientes</a></span>
+  <a onclick="resetProgress()">Reiniciar progreso</a>
+</div>
+
+<details class="help">
+  <summary>¿Cómo estudiar con esto? (método)</summary>
+  <p><b>Recuerdo activo + repetición espaciada.</b> Lee la pregunta, intenta responder <i>de memoria en voz alta</i> y solo entonces pulsa para comprobar. Ese esfuerzo de recuperar es lo que fija el recuerdo.</p>
+  <p><b>Sé honesto al puntuar.</b> Si aciertas del todo, pulsa <b>✓ La sabía</b> (la tarjeta sube de nivel de dominio y tarda más en volver). Si dudas o fallas, pulsa <b>↻ Repasar</b> (baja de nivel y reaparece pronto). Así el programa te muestra más las que peor llevas.</p>
+  <p><b>Sube de nivel poco a poco.</b> Empieza por el <b>N1</b> y no pases al siguiente hasta tener el anterior bastante dominado. Los niveles van de lo básico (definiciones) a lo experto (relaciones entre autores, citas, fechas y aplicaciones actuales).</p>
+  <p><b>Repasa en huecos cortos y a diario.</b> 5–10 minutos varias veces al día rinden mucho más que una sesión larga. Tu progreso se guarda en este dispositivo.</p>
+  <p><b>Truco iPhone:</b> abre este archivo en Safari y usa <i>Compartir → Añadir a pantalla de inicio</i> para tenerlo como una app y repasar sin conexión.</p>
+</details>
+
+<script>
+/* ==================== BANCO DE TARJETAS ==================== */
+/* lvl: 1..6 · cat: etiqueta */
+const LEVELS = {
+  1:{name:"N1", desc:"Fundamentos"},
+  2:{name:"N2", desc:"Orígenes y preclásicos"},
+  3:{name:"N3", desc:"Economía clásica"},
+  4:{name:"N4", desc:"Crítica marxista"},
+  5:{name:"N5", desc:"Economía neoclásica"},
+  6:{name:"N6", desc:"Relaciones y síntesis"}
+};
+
+const CARDS = [
+/* ---------- NIVEL 1 · Fundamentos ---------- */
+{lvl:1,cat:"Definición",q:`¿Cómo definen Samuelson y Nordhaus la economía?`,a:`La ciencia que estudia cómo administrar recursos que son escasos para satisfacer necesidades que son ilimitadas.`},
+{lvl:1,cat:"Definición",q:`¿Qué es el "pensamiento económico"?`,a:`El conjunto de ideas, teorías y explicaciones que distintos autores han dado al fenómeno económico a lo largo de la historia.`},
+{lvl:1,cat:"Contexto",q:`¿Qué periodo abarca este tema?`,a:`Desde la Antigüedad hasta los años previos a la Gran Depresión de 1929, momento en que el pensamiento keynesiano marca el punto de inflexión.`},
+{lvl:1,cat:"Autor-fuente",q:`¿En qué obra de Galbraith se apoya el tema para clasificar la historia del pensamiento económico?`,a:`En "Historia de la economía", de J. K. Galbraith.`},
+{lvl:1,cat:"Definición",q:`Según Galbraith, ¿en qué dos grandes periodos se divide la historia del pensamiento económico?`,a:`El periodo pre-científico y el periodo científico.`},
+{lvl:1,cat:"Definición",q:`¿Hasta cuándo dura el periodo pre-científico y qué lo caracteriza?`,a:`Hasta mitad del s. XVIII: la economía no es una verdadera ciencia, va unida a la filosofía y no existe crítica organizada ni corrección de errores.`},
+{lvl:1,cat:"Definición",q:`¿Con quién y en qué siglo empieza el periodo científico?`,a:`Con Adam Smith, en el s. XVIII: la economía pasa a considerarse una ciencia independiente.`},
+{lvl:1,cat:"Vocabulario",q:`¿De qué término griego procede "economía" y qué significa?`,a:`De "oikos nomos" = "ley de la casa": hacía referencia a la administración del hogar.`},
+{lvl:1,cat:"Vocabulario",q:`¿Qué término acuñó Aristóteles y qué significaba?`,a:`"Crematística": la acumulación de riqueza como fin en sí mismo, que consideraba contraria a la naturaleza.`},
+{lvl:1,cat:"Vocabulario",q:`¿Con qué contrapone Aristóteles la "crematística"?`,a:`Con la "oikonomía": la administración del hogar orientada al bienestar.`},
+
+/* ---------- NIVEL 2 · Orígenes y preclásicos ---------- */
+{lvl:2,cat:"Origen",q:`¿Qué aportó el Imperio Romano al pensamiento económico?`,a:`Las primeras monedas emitidas en régimen de monopolio (liquidez al servicio del Estado) y el establecimiento de un sistema tributario.`},
+{lvl:2,cat:"Origen",q:`¿Qué movimiento de la Edad Media se preocupó por el "precio justo"?`,a:`La escolástica, que se preocupó por el precio justo de los bienes y por un reparto equitativo de la riqueza.`},
+{lvl:2,cat:"Autor",q:`¿Qué defendió Santo Tomás de Aquino sobre los precios?`,a:`Reflexionó sobre la moralidad de los precios, defendió los precios "justos" (que los comerciantes no se lucraran excesivamente) y condenó la usura, conectando con Aristóteles.`},
+{lvl:2,cat:"Origen",q:`¿Qué tres grandes hitos surgieron en el Renacimiento?`,a:`Los bancos, las sociedades anónimas y las bolsas de valores.`},
+{lvl:2,cat:"Origen",q:`¿Qué estudió la Escuela de Salamanca (s. XVI) y qué anticipó?`,a:`Cómo el aumento de la masa monetaria (plata de América) elevaba los precios, relacionando la liquidez con la inflación: anticipó la teoría cuantitativa del dinero.`},
+{lvl:2,cat:"Corriente",q:`¿En qué siglos se desarrolla el mercantilismo y qué busca?`,a:`Entre los siglos XVI y XVIII; se aleja de la filosofía para centrarse en la búsqueda de la riqueza.`},
+{lvl:2,cat:"Corriente",q:`Para los mercantilistas, ¿en qué consiste la riqueza y cómo se aumenta?`,a:`La riqueza mundial es constante y se mide por la cantidad de oro y plata; un país solo la aumenta incrementando sus exportaciones.`},
+{lvl:2,cat:"Corriente",q:`¿A qué política condujo el mercantilismo?`,a:`Al proteccionismo (limitar las importaciones para no perder oro/plata) y a defender un poder económico centralizado.`},
+{lvl:2,cat:"Autor",q:`¿Quién fue Jean Baptiste Colbert y qué defendía?`,a:`Ministro de finanzas francés; defendía las manufacturas nacionales y el aumento del sector público.`},
+{lvl:2,cat:"Cita",q:`¿Qué célebre cita se atribuye a Colbert?`,a:`"El arte de la tributación consiste en desplumar el ganso para obtener la mayor cantidad de plumas con el menor número de graznidos posibles".`},
+{lvl:2,cat:"Autor",q:`¿Quién fue Jerónimo de Uztáriz y qué matiz aportó al mercantilismo?`,a:`Mercantilista español, partidario de reservar el comercio con las Indias para España y del proteccionismo, pero anticipó una postura algo menos intervencionista, con más iniciativa privada.`},
+{lvl:2,cat:"Aplicación actual",q:`¿Qué ejemplo actual refleja el pensamiento mercantilista?`,a:`Las políticas arancelarias de Donald Trump (EE. UU.): reducir importaciones y aumentar exportaciones para hacer crecer la riqueza nacional.`},
+{lvl:2,cat:"Corriente",q:`Balance del mercantilismo: ¿en qué se equivocó y en qué contribuyó?`,a:`Identificó erróneamente la riqueza con los metales preciosos, pero contribuyó decisivamente a fortalecer los Estados modernos y al desarrollo de la política económica.`},
+{lvl:2,cat:"Corriente",q:`¿Qué significa "fisiocracia", cuándo surge y frente a qué reacciona?`,a:`Significa "poder sobre la naturaleza"; se desarrolla en el s. XVIII y surge como reacción al mercantilismo.`},
+{lvl:2,cat:"Corriente",q:`¿Dónde situaban los fisiócratas el origen de la riqueza?`,a:`En la naturaleza: solo el sector primario (la producción agrícola) es capaz de generar excedentes.`},
+{lvl:2,cat:"Vocabulario",q:`¿Qué término acuñaron los fisiócratas y qué significa?`,a:`"Laissez faire" (dejen hacer, dejen pasar): una actitud liberal frente al comercio, que sería una de las bases del pensamiento clásico posterior.`},
+{lvl:2,cat:"Obra/Fecha",q:`¿Quién publicó el "Tableau Économique" y en qué año?`,a:`François Quesnay, en 1758.`},
+{lvl:2,cat:"Autor",q:`¿Qué representa el "Tableau Économique" de Quesnay?`,a:`Uno de los primeros esquemas circulatorios de la economía, muy parecido al "flujo circular de la renta" actual, pero sin incluir al Estado.`},
+{lvl:2,cat:"Autor/Fecha",q:`¿Qué ley formuló Anne Robert Turgot, a qué la aplicó y en qué año?`,a:`La ley de los rendimientos decrecientes, aplicada por primera vez a la producción agrícola, en 1767.`},
+{lvl:2,cat:"Cita",q:`¿Qué cita ilustra la ley de rendimientos decrecientes de Turgot?`,a:`"La fertilidad de la tierra es como un muelle cuando se comprime (…) el efecto de las sucesivas cargas disminuye gradualmente".`},
+{lvl:2,cat:"Aplicación actual",q:`¿Qué ejemplo actual refleja el pensamiento fisiócrata?`,a:`Las energías renovables (solar, eólica…), consideradas capaces de generar excedente energético ilimitado.`},
+{lvl:2,cat:"Corriente",q:`¿Cuál fue la principal limitación de la fisiocracia?`,a:`Considerar que solo la agricultura genera producto neto, sin reconocer que la industria y el comercio también crean valor añadido.`},
+
+/* ---------- NIVEL 3 · Economía clásica ---------- */
+{lvl:3,cat:"Corriente",q:`¿Dónde y cuándo surge la economía clásica, y de la mano de quién?`,a:`En Inglaterra, a mitad del s. XVIII, de la mano de Adam Smith.`},
+{lvl:3,cat:"Corriente",q:`¿Por qué con Adam Smith la economía se considera ciencia independiente?`,a:`Porque se instaura una crítica organizada, se crean modelos para predecir el comportamiento y se aplica un sistema de corrección de errores.`},
+{lvl:3,cat:"Autor-fuente",q:`¿Qué autor y obra se citan sobre la importancia del pensamiento clásico?`,a:`Harry Landreth, en "Historia del pensamiento económico": las ideas clásicas son fundamentales para entender la sociedad actual, dentro del contexto de la revolución industrial.`},
+{lvl:3,cat:"Obra/Fecha",q:`¿En qué año y con qué obra nace el pensamiento clásico?`,a:`En 1776, con "Investigación sobre la naturaleza y causas de la riqueza de las naciones", de Adam Smith.`},
+{lvl:3,cat:"Autor",q:`¿De qué era catedrático Adam Smith y qué suponía que guiaba el comportamiento humano?`,a:`Era catedrático de Filosofía moral (ética) y postulaba que existía un "orden natural" que guiaba el comportamiento humano.`},
+{lvl:3,cat:"Concepto",q:`¿En qué consiste la "mano invisible" de Adam Smith?`,a:`Cada individuo, buscando su propio interés individual, es guiado por el mercado como por una mano invisible y, al obtener su beneficio, contribuye al beneficio colectivo.`},
+{lvl:3,cat:"Cita",q:`¿Qué cita resume la "mano invisible" de Smith?`,a:`"No es de la benevolencia del carnicero o del panadero de donde obtenemos nuestra cena, sino de la búsqueda de sus propios intereses individuales".`},
+{lvl:3,cat:"Autor",q:`¿Qué papel del Estado defendía Adam Smith?`,a:`Un Estado mínimo (justicia, obras públicas, defensa nacional…) centrado en proteger la propiedad privada, dejando que los individuos realicen las actividades económicas.`},
+{lvl:3,cat:"Aportación",q:`Enumera las principales aportaciones de Adam Smith.`,a:`Los modelos de oferta y demanda; la distinción precio ≠ valor (teoría valor-trabajo); la acumulación de capital para el crecimiento; la división del trabajo; y la ventaja absoluta.`},
+{lvl:3,cat:"Concepto",q:`Según Smith, ¿en qué se diferencian el precio y el valor de un producto?`,a:`El precio se determina por la oferta y la demanda; el valor se mide por la cantidad de trabajo (físico e intelectual) que incorpora, medido en valor monetario.`},
+{lvl:3,cat:"Concepto",q:`¿Qué es la ventaja absoluta (Adam Smith)?`,a:`Que cada país debe especializarse en aquellos productos en los que tenga ventaja absoluta en su producción frente a otros países.`},
+{lvl:3,cat:"Autor",q:`¿Quién fue el gran desarrollador de las ideas clásicas y qué método empleó?`,a:`David Ricardo, que utilizó el método abstracto: partir de evidencias para llegar a conclusiones aceptables.`},
+{lvl:3,cat:"Concepto",q:`¿Qué es la ventaja comparativa (David Ricardo)?`,a:`Un país debe especializarse en los productos en los que tenga mayor ventaja comparativa o menor desventaja comparativa, aunque tenga desventaja absoluta en todos.`},
+{lvl:3,cat:"Concepto",q:`¿Qué es el "estado estacionario" de Ricardo?`,a:`Aplicando los rendimientos decrecientes, a largo plazo la producción no puede seguir aumentando: cada trabajador aporta cada vez menos producción extra hasta que esta se mantiene estable.`},
+{lvl:3,cat:"Relación",q:`¿Qué idea de Ricardo influyó en Marx?`,a:`Su teoría sobre la acumulación de capital: para poder acumular capital sería necesario acumular grandes cantidades de trabajo.`},
+{lvl:3,cat:"Autor",q:`¿A qué aplicó Thomas Robert Malthus la ley de rendimientos decrecientes?`,a:`Al aumento de la población inglesa y al sector agrícola.`},
+{lvl:3,cat:"Concepto",q:`¿Cuál era la conclusión de la teoría de Malthus?`,a:`Como la población crece más que la producción agrícola, llegaría un momento en que no habría alimentos para todos, produciéndose guerras o epidemias que ajustarían la población.`},
+{lvl:3,cat:"Concepto",q:`¿Se cumplió la teoría de Malthus y dónde se acepta hoy?`,a:`No se cumplió en el ser humano (por los avances tecnológicos y la caída de la natalidad); se acepta en la Biología de poblaciones, para organismos con tasas de crecimiento muy elevadas (hongos, bacterias…).`},
+{lvl:3,cat:"Autor",q:`¿Cómo se describe la figura de John Stuart Mill?`,a:`Como un gran sintetizador de las ideas clásicas y un adelantado a su tiempo en temas como la esclavitud y el problema de los salarios bajos.`},
+{lvl:3,cat:"Concepto",q:`¿Qué famoso ejemplo creó John Stuart Mill y quién lo popularizó?`,a:`El ejemplo del "faro" (para ilustrar los bienes públicos), que popularizó Paul Samuelson.`},
+{lvl:3,cat:"Concepto",q:`¿Qué afirma la "ley de Say"?`,a:`Que la oferta crea su propia demanda: por tanto no puede haber crisis por falta de demanda, y si la oferta es alta se tenderá al pleno empleo y al equilibrio económico.`},
+{lvl:3,cat:"Relación",q:`¿Hasta cuándo se aceptó la ley de Say y quién la cuestionó?`,a:`La aceptaron casi todos los economistas clásicos (salvo Malthus) hasta la aparición de J. M. Keynes y sus ideas sobre la preferencia por el ahorro.`},
+{lvl:3,cat:"Concepto",q:`¿En qué se basa la teoría del valor de Say?`,a:`En que no es el trabajo lo que mide el valor de los bienes y servicios, sino la utilidad que el bien o servicio aporta al individuo.`},
+{lvl:3,cat:"Autor",q:`¿Qué defendió Charles Dunoyer?`,a:`Profundizó en la libertad económica casi hasta la "anarquía económica": el Estado solo debería ocuparse del orden jurídico (civil y penal, no mercantil).`},
+{lvl:3,cat:"Autor",q:`¿Quién fue Frédéric Bastiat y por qué es conocido?`,a:`Firme opositor al proteccionismo (que en última instancia recae sobre los consumidores nacionales); conocido por sus sátiras contra el proteccionismo, como "La petición de los fabricantes de velas".`},
+{lvl:3,cat:"Cita",q:`En la sátira de Bastiat, ¿contra qué "competidor desleal" piden protección los fabricantes de velas?`,a:`Contra el sol.`},
+{lvl:3,cat:"Aplicación actual",q:`¿Qué ejemplo actual muestra la vigencia del pensamiento clásico?`,a:`El libro "Funky business forever" (2012), de K. Nordstrom y J. Ridderstrale: el 90% de los países se basan en el mercado para asignar el precio de los bienes y servicios.`},
+{lvl:3,cat:"Corriente",q:`¿Cuál fue el límite de la economía clásica?`,a:`El exceso de confianza en el equilibrio automático (la ley de Say), que dejaría paso tanto a la crítica marxista como, más tarde, a Keynes.`},
+
+/* ---------- NIVEL 4 · Crítica marxista ---------- */
+{lvl:4,cat:"Corriente",q:`¿Quién fue la principal figura histórica de oposición al pensamiento clásico?`,a:`Karl Marx, aunque antes que él ya existieron algunos economistas críticos con el pensamiento clásico.`},
+{lvl:4,cat:"Contexto",q:`¿Cuándo surgieron las "primeras críticas" y de quiénes?`,a:`Después de la muerte de Ricardo, a principios del s. XIX, por parte de economistas franceses y alemanes.`},
+{lvl:4,cat:"Autor",q:`¿Qué defendía Georg Friedrich List?`,a:`Economía liberal entre los Estados alemanes pero proteccionismo frente al exterior: el arancel como medida temporal para proteger la industria naciente hasta que pudiera competir en igualdad.`},
+{lvl:4,cat:"Aplicación actual",q:`¿Qué ejemplo actual refleja las ideas de List?`,a:`La Unión Europea, que impulsa ayudas públicas para desarrollar una industria propia de baterías y reducir la dependencia tecnológica de Asia.`},
+{lvl:4,cat:"Autor",q:`¿Qué criticó Jean Charles Léonard de Sismondi?`,a:`Estaba en contra de la "ley de Say" y afirmaba que la industria moderna se encaminaba hacia la superproducción, declarándola "un sistema peligroso".`},
+{lvl:4,cat:"Obra",q:`¿Cuáles fueron las principales obras de Karl Marx?`,a:`"El capital" y "El manifiesto comunista" (esta última escrita junto a Friedrich Engels).`},
+{lvl:4,cat:"Concepto",q:`¿De qué se aleja Marx y hacia qué se dirige?`,a:`Se aleja del "socialismo utópico" para adentrarse en el "socialismo científico" o "dialéctica materialista": explicar los fenómenos sociales en base a leyes objetivas.`},
+{lvl:4,cat:"Concepto",q:`Según el materialismo dialéctico aplicado a la historia, ¿cuál es el motor de los cambios sociales?`,a:`La forma en que las personas satisfacen sus necesidades; los métodos de producción y distribución determinan el orden social y las posibles revoluciones.`},
+{lvl:4,cat:"Concepto",q:`¿Qué es la plusvalía?`,a:`La diferencia entre el valor que genera el trabajador (superior a su salario) y el salario que percibe; es apropiada por el empresario y constituye la base de la explotación capitalista.`},
+{lvl:4,cat:"Concepto",q:`¿A qué da lugar el conflicto de intereses entre capital y trabajo, según Marx?`,a:`A la lucha de clases.`},
+{lvl:4,cat:"Concepto",q:`Según Marx, ¿qué debería hacerse con la plusvalía?`,a:`Repartirse entre todos los trabajadores o redistribuirla el Estado a través de bienes y servicios públicos.`},
+{lvl:4,cat:"Concepto",q:`¿Por qué dos motivos pronosticó Marx el colapso del capitalismo?`,a:`1) Las técnicas capitalistas (división del trabajo) crean empresas cada vez más grandes y más explotación, y los trabajadores no podrán adquirir los bienes. 2) La mecanización genera un "ejército industrial de parados" que, sin ingresos, no compra, provocando la caída de los empresarios.`},
+{lvl:4,cat:"Concepto",q:`¿Qué es el "ejército industrial de parados"?`,a:`La masa de desempleados provocada por la creciente mecanización que, al no tener ingresos, no puede adquirir productos.`},
+{lvl:4,cat:"Concepto",q:`¿Dónde preveía Marx el colapso del capitalismo y dónde ocurrió realmente?`,a:`Lo preveía en países con gran número de obreros como Francia o Alemania; no previó que sucediera en Rusia.`},
+{lvl:4,cat:"Corriente",q:`¿Cuál fue la gran aportación de Marx?`,a:`Demostrar que el capitalismo genera tensiones internas (entre capital y trabajo) que el pensamiento clásico apenas había considerado.`},
+{lvl:4,cat:"Corriente",q:`¿Por qué no se cumplió el pronóstico de colapso de Marx?`,a:`El propio sistema capitalista absorbió parte de esas tensiones mediante mecanismos redistributivos (impuestos progresivos, educación y sanidad públicas), transaccionando hacia la economía mixta actual.`},
+{lvl:4,cat:"Aplicación actual",q:`¿Qué debate actual conecta con la aportación de Marx?`,a:`La sustitución de empleos por la automatización y la inteligencia artificial (la tensión entre capital y trabajo).`},
+
+/* ---------- NIVEL 5 · Economía neoclásica ---------- */
+{lvl:5,cat:"Corriente",q:`¿Cuándo surge la economía neoclásica y con qué objetivo?`,a:`A finales del s. XIX, para profundizar y complementar el pensamiento clásico; introducen el análisis matemático y ponen el foco en el mercado como asignador de recursos.`},
+{lvl:5,cat:"Concepto",q:`¿Cuál fue la aportación clave de los neoclásicos sobre el valor?`,a:`Que el valor no se explica solo por la oferta (valor-trabajo), sino también por la demanda, determinada por la utilidad marginal (Revolución marginalista) y por la limitación presupuestaria.`},
+{lvl:5,cat:"Concepto",q:`¿Qué es la utilidad marginal?`,a:`La utilidad que se añade al consumir una unidad más de un bien o servicio; suele ser decreciente y puede llegar a 0, punto en que la utilidad total es máxima y no se querrá seguir consumiendo.`},
+{lvl:5,cat:"Concepto",q:`¿Qué dilema de Adam Smith resolvió el concepto de utilidad marginal?`,a:`La paradoja del valor: por qué el agua, tan necesaria (útil), es tan barata, y los diamantes, innecesarios, son tan caros.`},
+{lvl:5,cat:"Autor",q:`¿Quién fue el máximo exponente de la escuela neoclásica y dónde enseñaba?`,a:`Alfred Marshall, profesor de economía en la Universidad de Cambridge (donde fue maestro de J. M. Keynes).`},
+{lvl:5,cat:"Concepto",q:`¿Qué son las "tijeras marshallianas"?`,a:`El modelo de formación del equilibrio por oferta y demanda: la demanda (el consumidor paga menos por las últimas unidades: utilidad marginal decreciente) y la oferta (costes marginales crecientes a partir de cierto punto).`},
+{lvl:5,cat:"Autor",q:`¿Qué formalizó Léon Walras?`,a:`El equilibrio general: mediante un sistema de ecuaciones simultáneas demostró que todos los mercados de una economía pueden alcanzar el equilibrio de forma interdependiente.`},
+{lvl:5,cat:"Autor",q:`¿Qué aplicó Vilfredo Pareto y qué dos conceptos aportó?`,a:`Aplicó el marginalismo al equilibrio general de Walras; aportó las curvas de indiferencia y el óptimo de Pareto.`},
+{lvl:5,cat:"Concepto",q:`¿Qué son las curvas de indiferencia?`,a:`Los conjuntos de combinaciones de bienes para las que la satisfacción del consumidor es idéntica.`},
+{lvl:5,cat:"Concepto",q:`¿Qué es el óptimo de Pareto?`,a:`El punto de equilibrio en el que ningún agente puede mejorar su situación sin reducir el bienestar de cualquier otro agente.`},
+{lvl:5,cat:"Aplicación actual",q:`¿Qué ejemplo actual muestra la vigencia del pensamiento neoclásico?`,a:`Uber, que cambia constantemente los precios de los trayectos en función de la oferta y la demanda en tiempo real (modelos matemáticos y econométricos).`},
+{lvl:5,cat:"Corriente",q:`¿Cuál fue la gran aportación de la escuela neoclásica y su límite?`,a:`Dotar a la economía de un aparato matemático riguroso que permitió tratarla como ciencia formal; su límite fue asumir una racionalidad perfecta del individuo, hoy cuestionada por la economía conductual.`},
+
+/* ---------- NIVEL 6 · Relaciones y síntesis (experto) ---------- */
+{lvl:6,cat:"Relación",q:`Diferencia entre ventaja absoluta y ventaja comparativa (Smith vs Ricardo).`,a:`Ventaja absoluta (Smith): especializarse donde se produce con más eficiencia que otros países. Ventaja comparativa (Ricardo): especializarse donde se tiene menor desventaja, aunque se tenga desventaja absoluta en todos los productos.`},
+{lvl:6,cat:"Relación",q:`¿Quiénes defendieron la ley de Say y quiénes la rechazaron?`,a:`La defendieron casi todos los clásicos; la rechazaron Malthus, Sismondi, Marx y, más tarde, Keynes.`},
+{lvl:6,cat:"Relación",q:`Teoría del valor: ¿quién sostiene el valor-trabajo y quién el valor por utilidad?`,a:`Valor-trabajo: Smith, Ricardo y Marx. Valor por utilidad: Say y los neoclásicos (utilidad marginal).`},
+{lvl:6,cat:"Relación",q:`¿Qué autor clásico influyó en Marx y con qué concepto?`,a:`David Ricardo, con la acumulación de capital (y la teoría del valor-trabajo).`},
+{lvl:6,cat:"Relación",q:`¿Qué corriente sienta las bases del liberalismo y con qué término?`,a:`La fisiocracia, al defender y acuñar el "Laissez faire" y desplazar el foco de la acumulación de riqueza hacia la capacidad productiva.`},
+{lvl:6,cat:"Relación",q:`¿Qué sustituyeron los neoclásicos respecto a la teoría clásica del valor?`,a:`Sustituyeron la teoría del valor-trabajo por la utilidad marginal como explicación del valor.`},
+{lvl:6,cat:"Relación",q:`¿Qué autores conforman la escuela clásica según la conclusión del tema?`,a:`Adam Smith junto con David Ricardo, Thomas Malthus, Jean-Baptiste Say y John Stuart Mill.`},
+{lvl:6,cat:"Relación",q:`¿Qué debate impulsó Marx y a qué contribuyó?`,a:`El debate sobre el papel del Estado en la economía; contribuyó al posterior desarrollo del Estado del bienestar y de las economías mixtas.`},
+{lvl:6,cat:"Relación",q:`¿Qué relación hay entre Marshall y Keynes?`,a:`Alfred Marshall fue profesor de J. M. Keynes en la Universidad de Cambridge.`},
+{lvl:6,cat:"Relación",q:`¿Qué tienen en común Aristóteles y Santo Tomás de Aquino?`,a:`Ambos reflexionan sobre la moralidad económica y condenan la usura (el cobro inmoral/excesivo de intereses).`},
+{lvl:6,cat:"Síntesis",q:`Empareja cada corriente con dónde sitúa el origen de la riqueza: mercantilismo, fisiocracia y clásicos.`,a:`Mercantilismo → el oro y la plata (vía comercio/exportaciones). Fisiocracia → la naturaleza (la agricultura). Clásicos → el trabajo (teoría del valor-trabajo).`},
+{lvl:6,cat:"Síntesis",q:`Ordena cronológicamente las corrientes preclásicas y el inicio de la clásica.`,a:`Escolástica → Escuela de Salamanca → Mercantilismo → Fisiocracia → Economía clásica (Adam Smith, 1776).`},
+{lvl:6,cat:"Obra→autor",q:`"Investigación sobre la naturaleza y causas de la riqueza de las naciones" (1776), ¿de quién?`,a:`De Adam Smith.`},
+{lvl:6,cat:"Obra→autor",q:`"El capital", ¿de quién?`,a:`De Karl Marx.`},
+{lvl:6,cat:"Obra→autor",q:`"El manifiesto comunista", ¿de quién?`,a:`De Karl Marx y Friedrich Engels.`},
+{lvl:6,cat:"Obra→autor",q:`"Tableau Économique" (1758), ¿de quién?`,a:`De François Quesnay.`},
+{lvl:6,cat:"Obra→autor",q:`"Historia de la economía" e "Historia del pensamiento económico", ¿de quiénes?`,a:`"Historia de la economía" es de J. K. Galbraith; "Historia del pensamiento económico" es de Harry Landreth.`},
+{lvl:6,cat:"Cita→autor",q:`"El arte de la tributación consiste en desplumar el ganso…", ¿de quién?`,a:`De Jean Baptiste Colbert (mercantilismo).`},
+{lvl:6,cat:"Cita→autor",q:`"No es de la benevolencia del carnicero o del panadero…", ¿de quién?`,a:`De Adam Smith (la mano invisible).`},
+{lvl:6,cat:"Cita→autor",q:`"La petición de los fabricantes de velas", ¿de quién y para qué?`,a:`De Frédéric Bastiat: una sátira contra el proteccionismo.`},
+{lvl:6,cat:"Cita→autor",q:`"La fertilidad de la tierra es como un muelle…", ¿de quién?`,a:`De Anne Robert Turgot (ley de rendimientos decrecientes, 1767).`},
+{lvl:6,cat:"Fecha→hito",q:`1758, ¿qué hito?`,a:`La publicación del "Tableau Économique" de Quesnay.`},
+{lvl:6,cat:"Fecha→hito",q:`1767, ¿qué hito?`,a:`Turgot formula y aplica la ley de rendimientos decrecientes a la agricultura.`},
+{lvl:6,cat:"Fecha→hito",q:`1776, ¿qué hito?`,a:`Adam Smith publica "La riqueza de las naciones": nace la economía clásica y como ciencia independiente.`},
+{lvl:6,cat:"Fecha→hito",q:`1929, ¿qué hito?`,a:`La Gran Depresión: marca el fin del predominio neoclásico y abre la etapa keynesiana (John Maynard Keynes).`},
+{lvl:6,cat:"Fecha→hito",q:`2012 y 2021, ¿qué hitos?`,a:`2012: el libro "Funky business forever" (Nordstrom y Ridderstrale). 2021: el Premio Nobel de Economía a Card, Angrist e Imbens.`},
+{lvl:6,cat:"Contemporáneo",q:`¿Qué reconoció el Premio Nobel de Economía de 2021 y a quiénes?`,a:`A David Card, Joshua Angrist y Guido Imbens, por sus contribuciones al análisis del mercado laboral (herencia de la econometría neoclásica).`},
+{lvl:6,cat:"Síntesis",q:`¿Por qué, según la conclusión, ninguna escuela basta por sí sola?`,a:`Porque ninguna escuela ha logrado explicar por sí sola toda la complejidad de la realidad económica; cada corriente ha aportado conceptos que, lejos de sustituirse, se han ido acumulando y siguen siendo útiles hoy.`},
+{lvl:6,cat:"Contexto",q:`¿Qué marco normativo (currículo) se cita en el tema?`,a:`El Real Decreto 243/2022; el Decreto 103/2023 y la Orden de 30 de mayo de 2023, por la que se desarrolla el currículo de Bachillerato en Andalucía.`},
+{lvl:6,cat:"Autor-fuente",q:`¿Qué autores se citan como fuentes bibliográficas del tema?`,a:`Landreth, Rodríguez Braun, Kocka, Mochón, Nordstrom/Ridderstrale y Galbraith.`},
+{lvl:6,cat:"Relación",q:`¿Qué corriente introduce las matemáticas en la economía y cuál cuestiona hoy su supuesto de racionalidad?`,a:`Los neoclásicos introducen el aparato matemático; la economía conductual cuestiona hoy el supuesto de racionalidad perfecta.`},
+
+/* ============================================================
+   AMPLIACIÓN (×3): trampa · razonamiento · actualidad · refuerzo
+   t: 'trampa' | 'razon' | 'actualidad' | 'refuerzo'  (las de arriba = 'base')
+   ============================================================ */
+
+/* ---------- NIVEL 1 ---------- */
+{lvl:1,t:'refuerzo',cat:"Definición",q:`Completa: la economía administra recursos ______ para satisfacer necesidades ______.`,a:`Escasos; ilimitadas (definición de Samuelson y Nordhaus).`},
+{lvl:1,t:'refuerzo',cat:"Autor-fuente",q:`Reconoce al autor de "la economía es la ciencia de administrar recursos escasos".`,a:`Samuelson y Nordhaus.`},
+{lvl:1,t:'refuerzo',cat:"Contexto",q:`¿Qué significa que el pensamiento económico se desarrolla de forma "no uniforme"?`,a:`Que ha alternado periodos de gran desarrollo con etapas de estancamiento, en vez de avanzar de manera constante.`},
+{lvl:1,t:'refuerzo',cat:"Contexto",q:`Para entender a autores como Smith o Marx, ¿qué es imprescindible conocer?`,a:`El contexto histórico en el que desarrollaron sus ideas.`},
+{lvl:1,t:'refuerzo',cat:"Contexto",q:`¿Qué acontecimiento del tema siguiente será el "punto de inflexión"?`,a:`La Gran Depresión de 1929 y el pensamiento keynesiano.`},
+{lvl:1,t:'refuerzo',cat:"Vocabulario",q:`El prefijo "oiko-" (oikos nomos, oikonomía) significa…`,a:`Casa/hogar. Oikos nomos = ley de la casa; oikonomía = administración del hogar.`},
+{lvl:1,t:'trampa',cat:"Trampa",q:`¿Nació la economía como ciencia en la Antigüedad griega?`,a:`No. En la Antigüedad solo hay "síntomas"; como ciencia independiente nace en el s. XVIII con Adam Smith.`},
+{lvl:1,t:'trampa',cat:"Trampa",q:`Para Aristóteles, ¿"crematística" y "oikonomía" eran lo mismo?`,a:`No: las oponía. La crematística (acumular por acumular) era contraria a la naturaleza; la oikonomía se orienta al bienestar.`},
+{lvl:1,t:'trampa',cat:"Trampa",q:`La definición "recursos escasos / necesidades ilimitadas", ¿es de Adam Smith?`,a:`No: en el tema es de Samuelson y Nordhaus.`},
+{lvl:1,t:'trampa',cat:"Trampa",q:`El periodo científico, ¿empieza en el s. XIX con Ricardo?`,a:`No: empieza en el s. XVIII con Adam Smith.`},
+{lvl:1,t:'razon',cat:"Razonamiento",q:`¿Por qué en el periodo pre-científico no había "ciencia" económica?`,a:`Porque no era independiente (iba unida a la filosofía) y carecía de crítica organizada y de corrección de errores, requisitos de una ciencia.`},
+{lvl:1,t:'razon',cat:"Razonamiento",q:`¿Por qué el contexto histórico es clave para juzgar a un autor económico?`,a:`Porque sus ideas responden a los problemas y medios de su época (p. ej., la revolución industrial); descontextualizarlas las distorsiona.`},
+
+/* ---------- NIVEL 2 ---------- */
+{lvl:2,t:'refuerzo',cat:"Origen",q:`¿Qué preocupaba a la economía en la antigua Grecia?`,a:`Apenas superaba el ámbito del hogar: la administración de la casa ("oikos nomos").`},
+{lvl:2,t:'refuerzo',cat:"Origen",q:`¿Con qué régimen y para qué emitió monedas el Imperio Romano?`,a:`En régimen de monopolio, para poner la liquidez al servicio del Estado; junto a un sistema tributario.`},
+{lvl:2,t:'refuerzo',cat:"Vocabulario",q:`Traduce "Laissez faire" y di quién lo acuña.`,a:`"Dejen hacer, dejen pasar"; lo acuñan los fisiócratas (base del liberalismo clásico).`},
+{lvl:2,t:'refuerzo',cat:"Corriente",q:`Mercantilismo: ¿el comercio es juego de suma cero o positiva?`,a:`Suma cero: como la riqueza es constante, lo que un país gana otro lo pierde.`},
+{lvl:2,t:'refuerzo',cat:"Corriente",q:`¿Qué países proteccionistas quería imitar Uztáriz?`,a:`Francia, Inglaterra y Holanda.`},
+{lvl:2,t:'refuerzo',cat:"Corriente",q:`¿Qué desplazó la fisiocracia respecto al mercantilismo?`,a:`El foco: de la acumulación de riqueza (metales) a la capacidad productiva (la naturaleza/agricultura).`},
+{lvl:2,t:'refuerzo',cat:"Autor",q:`Reconoce: ministro francés mercantilista, manufacturas nacionales.`,a:`Jean Baptiste Colbert.`},
+{lvl:2,t:'refuerzo',cat:"Autor",q:`Reconoce: mercantilista español, comercio con las Indias.`,a:`Jerónimo de Uztáriz.`},
+{lvl:2,t:'refuerzo',cat:"Autor",q:`Reconoce: publica el "Tableau Économique" (1758).`,a:`François Quesnay.`},
+{lvl:2,t:'refuerzo',cat:"Autor",q:`Reconoce: ley de rendimientos decrecientes en la agricultura (1767).`,a:`Anne Robert Turgot.`},
+{lvl:2,t:'refuerzo',cat:"Origen",q:`¿Qué ejemplos actuales ilustran las ideas de la escolástica?`,a:`El comercio justo, el salario mínimo y las polémicas sobre bonificaciones a directivos.`},
+{lvl:2,t:'refuerzo',cat:"Corriente",q:`¿Qué significaba "crematística" respecto al dinero?`,a:`Acumular riqueza como fin en sí mismo, algo que Aristóteles veía contrario a la naturaleza.`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`¿La Escuela de Salamanca es del s. XVIII?`,a:`No: del s. XVI. Anticipó la teoría cuantitativa del dinero con la plata de América.`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`El "Laissez faire", ¿lo acuñaron los mercantilistas?`,a:`No: los fisiócratas. Los mercantilistas eran proteccionistas (lo contrario).`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`¿Quesnay incluyó al Estado en su "flujo circular"?`,a:`No: su esquema circulatorio era sin el Estado.`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`La teoría cuantitativa del dinero, ¿la anticiparon los fisiócratas?`,a:`No: la Escuela de Salamanca (s. XVI).`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`La cita "desplumar el ganso", ¿es de Uztáriz?`,a:`No: de Colbert. Uztáriz es el del comercio con las Indias.`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`La cita "la fertilidad de la tierra es como un muelle", ¿es de Quesnay?`,a:`No: de Turgot (1767). De Quesnay es el Tableau Économique (1758).`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`¿Los fisiócratas creían que la industria generaba producto neto?`,a:`No: solo la agricultura; ignorar el valor añadido de industria y comercio fue su gran limitación.`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`Cronología: ¿el mercantilismo es posterior a la fisiocracia?`,a:`No: primero el mercantilismo (s. XVI–XVIII); la fisiocracia (s. XVIII) surge como reacción.`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`Aristóteles, ¿pertenece a la escolástica?`,a:`No: es de la Antigua Grecia. La escolástica es medieval (Santo Tomás retoma sus ideas).`},
+{lvl:2,t:'trampa',cat:"Trampa",q:`¿La fisiocracia defiende el proteccionismo?`,a:`No: es más liberal y contraria al proteccionismo; acuña el "laissez faire".`},
+{lvl:2,t:'razon',cat:"Razonamiento",q:`Si la riqueza es oro y plata, ¿por qué el mercantilismo lleva al proteccionismo?`,a:`Porque importar saca metales y exportar los trae; para no perderlos hay que limitar importaciones y fomentar exportaciones.`},
+{lvl:2,t:'razon',cat:"Razonamiento",q:`¿Por qué la fisiocracia es una "reacción" al mercantilismo?`,a:`Porque invierte su idea central: la riqueza no está en los metales ni en el comercio, sino en la producción; y frente al proteccionismo defiende el "laissez faire".`},
+{lvl:2,t:'razon',cat:"Razonamiento",q:`¿Por qué la fisiocracia sienta bases del pensamiento clásico?`,a:`Porque su defensa de la libertad económica y del foco en la producción anticipa el liberalismo de Smith.`},
+{lvl:2,t:'razon',cat:"Razonamiento",q:`¿Por qué la Escuela de Salamanca pudo "ver" la relación dinero-precios en el s. XVI?`,a:`Porque la llegada masiva de plata de América subió la masa monetaria y los precios: un experimento natural de inflación.`},
+{lvl:2,t:'razon',cat:"Razonamiento",q:`¿Por qué el Tableau de Quesnay es precursor del flujo circular de la renta?`,a:`Porque representa cómo circulan bienes y dinero entre sectores de forma continua, como el modelo actual (aunque sin el Estado).`},
+{lvl:2,t:'actualidad',cat:"Actualidad",q:`Los aranceles de Trump (2025–2026) a decenas de países, ¿con qué corriente enlazan?`,a:`Con el mercantilismo: proteccionismo para reducir importaciones y aumentar exportaciones. En 2026 EE. UU. amplió aranceles (~10–12,5%) a unas 60 economías.`},
+{lvl:2,t:'actualidad',cat:"Actualidad",q:`Las energías renovables como fuente "ilimitada" de excedente, ¿qué corriente evocan?`,a:`La fisiocracia: la naturaleza como única fuente capaz de generar excedente (hoy, energético).`},
+{lvl:2,t:'actualidad',cat:"Actualidad",q:`El debate del salario mínimo o el comercio justo, ¿con qué idea histórica conecta?`,a:`Con la escolástica medieval: el "precio justo" y el reparto equitativo de la riqueza.`},
+{lvl:2,t:'actualidad',cat:"Actualidad",q:`El "made in Europe" para baterías y chips, ¿mercantilismo o fisiocracia?`,a:`Cercano al mercantilismo/proteccionismo estratégico; en clave de "industria naciente" enlaza también con List.`},
+
+/* ---------- NIVEL 3 ---------- */
+{lvl:3,t:'refuerzo',cat:"Autor",q:`Reconoce: "mano invisible" y ventaja absoluta.`,a:`Adam Smith.`},
+{lvl:3,t:'refuerzo',cat:"Autor",q:`Reconoce: ventaja comparativa y estado estacionario.`,a:`David Ricardo.`},
+{lvl:3,t:'refuerzo',cat:"Autor",q:`Reconoce: rendimientos decrecientes aplicados a la población.`,a:`Thomas Robert Malthus.`},
+{lvl:3,t:'refuerzo',cat:"Autor",q:`Reconoce: sintetizador clásico, ejemplo del faro.`,a:`John Stuart Mill.`},
+{lvl:3,t:'refuerzo',cat:"Autor",q:`Reconoce: "la oferta crea su propia demanda".`,a:`Jean Baptiste Say.`},
+{lvl:3,t:'refuerzo',cat:"Concepto",q:`¿Qué provoca la división del trabajo según Smith?`,a:`Especialización, aumento de la destreza y ahorro de tiempo.`},
+{lvl:3,t:'refuerzo',cat:"Concepto",q:`¿Qué es imprescindible, según Smith, antes de aumentar la producción?`,a:`Una acumulación previa de capital; por eso es necesaria para el crecimiento.`},
+{lvl:3,t:'refuerzo',cat:"Concepto",q:`¿Qué obtiene el modelo de oferta y demanda de Smith?`,a:`El precio y la cantidad de equilibrio del mercado.`},
+{lvl:3,t:'refuerzo',cat:"Concepto",q:`Ventaja absoluta, en una frase.`,a:`Producir aquello en lo que se es más eficiente que los demás y comerciar.`},
+{lvl:3,t:'refuerzo',cat:"Concepto",q:`Ventaja comparativa, en una frase.`,a:`Especializarse donde la desventaja es menor, aunque se sea peor en todo.`},
+{lvl:3,t:'refuerzo',cat:"Autor",q:`¿Por qué a Ricardo se le atribuye el "método abstracto"?`,a:`Porque partía de evidencias para, razonando en abstracto, llegar a conclusiones aceptables.`},
+{lvl:3,t:'refuerzo',cat:"Concepto",q:`¿A qué campo actual se trasladó la teoría de Malthus?`,a:`A la Biología de poblaciones (hongos, bacterias… con crecimiento muy elevado).`},
+{lvl:3,t:'refuerzo',cat:"Autor",q:`¿Hasta dónde llevó Dunoyer la libertad económica?`,a:`Casi hasta la "anarquía económica": el Estado solo se ocuparía del orden jurídico (civil y penal).`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`La ventaja comparativa, ¿es de Adam Smith?`,a:`No: de David Ricardo. De Smith es la ventaja absoluta.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`¿Aceptó Malthus la ley de Say?`,a:`No: Malthus fue la excepción entre los clásicos.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`¿La ley de Say es de Adam Smith?`,a:`No: de Jean Baptiste Say (escuela clásica francesa).`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`¿"La riqueza de las naciones" se publicó en 1876?`,a:`No: en 1776.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`El "estado estacionario", ¿es de Malthus?`,a:`No: de Ricardo (rendimientos decrecientes en la producción). Malthus los aplica a la población.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`¿Defendía Adam Smith un Estado muy intervencionista?`,a:`No: un Estado mínimo (justicia, obras públicas, defensa), centrado en proteger la propiedad privada.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`La teoría del valor de Say, ¿se basa en el trabajo?`,a:`No: en la utilidad que el bien aporta al individuo.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`¿Quién popularizó el ejemplo del faro, Mill o Samuelson?`,a:`Lo creó Mill; lo popularizó Samuelson.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`"La petición de los fabricantes de velas", ¿es de Dunoyer?`,a:`No: de Frédéric Bastiat, contra el proteccionismo.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`En Smith, ¿precio y valor son lo mismo?`,a:`No: el precio lo fija la oferta y la demanda; el valor, el trabajo incorporado (valor-trabajo).`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`La división del trabajo, ¿la valoran igual Smith y Marx?`,a:`No: Smith la ve positiva (productividad); Marx la asocia a sustituir al hombre por máquinas y perder empleo.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`¿Era Adam Smith economista de formación?`,a:`Era catedrático de Filosofía moral (ética); de ahí su idea del "orden natural".`},
+{lvl:3,t:'razon',cat:"Razonamiento",q:`¿Cómo convierte la "mano invisible" el egoísmo en beneficio colectivo?`,a:`Cada individuo, al buscar su interés, produce lo que otros demandan y compite; el mercado coordina y el resultado agregado beneficia al conjunto.`},
+{lvl:3,t:'razon',cat:"Razonamiento",q:`¿Por qué la ventaja comparativa permite comerciar aunque un país sea peor en todo?`,a:`Porque le conviene especializarse donde su desventaja es menor y comerciar; así ambos ganan respecto a producirlo todo por su cuenta.`},
+{lvl:3,t:'razon',cat:"Razonamiento",q:`¿Por qué el "estado estacionario" se deriva de los rendimientos decrecientes?`,a:`Porque si cada unidad de trabajo aporta cada vez menos, llega un punto en que no aporta nada y la producción deja de crecer.`},
+{lvl:3,t:'razon',cat:"Razonamiento",q:`¿Por qué la ley de Say implica que no hacen falta políticas de demanda?`,a:`Porque si la oferta crea su propia demanda, el mercado se autoequilibra hacia el pleno empleo (idea que Keynes rebatirá).`},
+{lvl:3,t:'razon',cat:"Razonamiento",q:`¿Por qué el exceso de fe en el "equilibrio automático" es el talón de Aquiles clásico?`,a:`Porque niega las crisis por falta de demanda; cuando ocurren (1929) la teoría falla y abre paso a Marx y Keynes.`},
+{lvl:3,t:'razon',cat:"Razonamiento",q:`Compara la visión del valor de Smith/Ricardo frente a la de Say.`,a:`Smith y Ricardo: valor por el trabajo incorporado. Say: valor por la utilidad (anticipa a los neoclásicos).`},
+{lvl:3,t:'razon',cat:"Razonamiento",q:`¿Por qué proteger la propiedad privada favorece la actividad económica según Smith?`,a:`Porque si los individuos conservan el fruto de su esfuerzo, se sienten motivados a producir e invertir.`},
+{lvl:3,t:'razon',cat:"Razonamiento",q:`¿Por qué Malthus no se cumplió en humanos pero sí sirve en biología?`,a:`En humanos la tecnología aumentó la producción y cayó la natalidad; en organismos sin esos frenos, el crecimiento sí choca con los límites.`},
+{lvl:3,t:'actualidad',cat:"Actualidad",q:`Que hoy ~el 90% de los países fijen precios por el mercado, ¿qué demuestra?`,a:`La vigencia del pensamiento clásico (el mercado como asignador). Fuente: "Funky business forever" (2012).`},
+{lvl:3,t:'actualidad',cat:"Actualidad",q:`La globalización y la especialización comercial actuales, ¿en qué idea clásica se apoyan?`,a:`En la ventaja comparativa de Ricardo.`},
+{lvl:3,t:'actualidad',cat:"Actualidad",q:`Los faros, la defensa o el alumbrado público, ¿qué concepto de Mill ejemplifican?`,a:`Los bienes públicos (no rivales y de difícil exclusión).`},
+
+/* ---------- NIVEL 4 ---------- */
+{lvl:4,t:'refuerzo',cat:"Autor",q:`Reconoce: plusvalía, lucha de clases, "El capital".`,a:`Karl Marx.`},
+{lvl:4,t:'refuerzo',cat:"Autor",q:`Reconoce: crítico alemán, proteccionismo a la industria naciente.`,a:`Georg Friedrich List.`},
+{lvl:4,t:'refuerzo',cat:"Autor",q:`Reconoce: crítico francés, superproducción, contra la ley de Say.`,a:`Jean Charles Léonard de Sismondi.`},
+{lvl:4,t:'refuerzo',cat:"Concepto",q:`¿De qué "socialismo" se aleja Marx y hacia cuál va?`,a:`Del socialismo utópico hacia el socialismo científico (dialéctica materialista), basado en leyes objetivas.`},
+{lvl:4,t:'refuerzo',cat:"Concepto",q:`En el materialismo dialéctico, ¿qué determina el orden social y las revoluciones?`,a:`La forma de satisfacer las necesidades: los métodos de producción y distribución.`},
+{lvl:4,t:'refuerzo',cat:"Concepto",q:`¿Qué transciende el pensamiento de Marx además de la economía?`,a:`La filosofía y la política.`},
+{lvl:4,t:'refuerzo',cat:"Concepto",q:`¿Qué dos obras del marxismo debes recordar?`,a:`"El capital" y "El manifiesto comunista".`},
+{lvl:4,t:'refuerzo',cat:"Autor",q:`List: ¿liberal o proteccionista?`,a:`Ambas cosas: liberal entre los Estados alemanes, proteccionista frente al exterior (arancel temporal).`},
+{lvl:4,t:'trampa',cat:"Trampa",q:`"El manifiesto comunista", ¿lo escribió Marx solo?`,a:`No: junto a Friedrich Engels. "El capital" sí se asocia a Marx.`},
+{lvl:4,t:'trampa',cat:"Trampa",q:`¿Marx aceptaba la ley de Say?`,a:`No: estaba en contra; pronosticaba colapso, no autoequilibrio.`},
+{lvl:4,t:'trampa',cat:"Trampa",q:`¿Marx usa la teoría del valor-utilidad?`,a:`No: parte del valor-trabajo (de ahí la plusvalía). La utilidad es de Say y los neoclásicos.`},
+{lvl:4,t:'trampa',cat:"Trampa",q:`¿Preveía Marx el colapso capitalista en Rusia?`,a:`No: lo esperaba en países muy industrializados (Francia o Alemania); no previó Rusia.`},
+{lvl:4,t:'trampa',cat:"Trampa",q:`¿Se cumplió el pronóstico de colapso de Marx?`,a:`No: el capitalismo absorbió las tensiones con redistribución (economía mixta).`},
+{lvl:4,t:'trampa',cat:"Trampa",q:`La crítica a la ley de Say por superproducción, ¿es de List?`,a:`No: de Sismondi. List es el del proteccionismo temporal.`},
+{lvl:4,t:'trampa',cat:"Trampa",q:`La plusvalía, ¿es la ganancia legítima del empresario?`,a:`No (según Marx): es valor generado por el trabajador y apropiado por el empresario; base de la explotación.`},
+{lvl:4,t:'trampa',cat:"Trampa",q:`¿List quería proteccionismo permanente?`,a:`No: un arancel temporal, solo hasta que la industria naciente pudiera competir.`},
+{lvl:4,t:'trampa',cat:"Trampa",q:`El "socialismo científico", ¿es lo mismo que el "utópico"?`,a:`No: Marx se aleja del utópico para basar el suyo en leyes objetivas.`},
+{lvl:4,t:'razon',cat:"Razonamiento",q:`¿Por qué la mecanización siembra, según Marx, la crisis del capitalismo?`,a:`Porque genera un "ejército industrial de parados" sin ingresos; si no hay quien compre, caen las ventas y los propios empresarios.`},
+{lvl:4,t:'razon',cat:"Razonamiento",q:`¿Por qué la plusvalía conduce a la lucha de clases?`,a:`Porque enfrenta intereses contrapuestos: el empresario se apropia del excedente y el trabajador queda explotado.`},
+{lvl:4,t:'razon',cat:"Razonamiento",q:`¿En qué se parecen las críticas de Sismondi y Marx a la ley de Say?`,a:`Ambos niegan el autoequilibrio: Sismondi por superproducción y Marx por el colapso; la oferta no crea sin más su demanda.`},
+{lvl:4,t:'razon',cat:"Razonamiento",q:`¿Cómo "salvó" el capitalismo el pronóstico de Marx?`,a:`Con mecanismos redistributivos (Estado del bienestar) que aliviaron las tensiones capital-trabajo → economía mixta.`},
+{lvl:4,t:'razon',cat:"Razonamiento",q:`¿En qué se diferencian el proteccionismo mercantilista y el de List?`,a:`El mercantilista es un fin en sí (acumular metales); el de List es un medio temporal para desarrollar la industria naciente.`},
+{lvl:4,t:'razon',cat:"Razonamiento",q:`¿Por qué Ricardo, siendo clásico, influye en el marxismo?`,a:`Porque de su valor-trabajo y su acumulación de capital parte Marx para desarrollar la plusvalía y la explotación.`},
+{lvl:4,t:'actualidad',cat:"Actualidad",q:`El debate sobre la IA y la automatización destruyendo empleos, ¿qué idea de Marx actualiza?`,a:`El "ejército industrial de parados": la mecanización (hoy IA/robots) desplazando trabajadores.`},
+{lvl:4,t:'actualidad',cat:"Actualidad",q:`Las ayudas de la UE para fabricar baterías propias y depender menos de China, ¿con qué autor conectan?`,a:`Con Georg Friedrich List: impulsar una "industria naciente" estratégica. La UE aún depende de China en ~88% de las baterías.`},
+{lvl:4,t:'actualidad',cat:"Actualidad",q:`Impuestos progresivos, sanidad y educación públicas, ¿qué tesis de Marx "desactivan"?`,a:`La del colapso inevitable: son los mecanismos redistributivos que dieron lugar a la economía mixta.`},
+{lvl:4,t:'actualidad',cat:"Actualidad",q:`La renta básica o los servicios universales, ¿qué herencia del debate marxista recogen?`,a:`La redistribución para aliviar la tensión capital-trabajo, propia de la economía mixta.`},
+
+/* ---------- NIVEL 5 ---------- */
+{lvl:5,t:'refuerzo',cat:"Autor",q:`Reconoce: "tijeras marshallianas".`,a:`Alfred Marshall.`},
+{lvl:5,t:'refuerzo',cat:"Autor",q:`Reconoce: equilibrio general con ecuaciones simultáneas.`,a:`Léon Walras.`},
+{lvl:5,t:'refuerzo',cat:"Autor",q:`Reconoce: óptimo y curvas de indiferencia.`,a:`Vilfredo Pareto.`},
+{lvl:5,t:'refuerzo',cat:"Concepto",q:`¿Qué determina la demanda en el modelo neoclásico?`,a:`La utilidad marginal (decreciente) y la limitación presupuestaria: maximizar la utilidad con la renta disponible.`},
+{lvl:5,t:'refuerzo',cat:"Concepto",q:`En las "tijeras marshallianas", ¿cómo son los costes marginales de la oferta?`,a:`Crecientes a partir de cierto punto.`},
+{lvl:5,t:'refuerzo',cat:"Concepto",q:`¿Cuándo alcanza su máximo la utilidad total?`,a:`Cuando la utilidad marginal llega a 0.`},
+{lvl:5,t:'refuerzo',cat:"Concepto",q:`¿Qué "revolución" da nombre al giro hacia la utilidad marginal?`,a:`La Revolución marginalista.`},
+{lvl:5,t:'refuerzo',cat:"Concepto",q:`Curva de indiferencia, en una frase.`,a:`Combinaciones de bienes que dan al consumidor la misma satisfacción.`},
+{lvl:5,t:'refuerzo',cat:"Concepto",q:`Óptimo de Pareto, en una frase.`,a:`Situación en la que no se puede mejorar a alguien sin empeorar a otro.`},
+{lvl:5,t:'trampa',cat:"Trampa",q:`Los neoclásicos, ¿mantienen la teoría del valor-trabajo?`,a:`No: la sustituyen por la utilidad marginal como explicación (añadida) del valor.`},
+{lvl:5,t:'trampa',cat:"Trampa",q:`El óptimo de Pareto, ¿es de Walras?`,a:`No: de Vilfredo Pareto.`},
+{lvl:5,t:'trampa',cat:"Trampa",q:`¿Marshall fue alumno de Keynes?`,a:`Al revés: Marshall fue profesor de Keynes en Cambridge.`},
+{lvl:5,t:'trampa',cat:"Trampa",q:`¿La utilidad marginal suele ser creciente?`,a:`No: decreciente (cada unidad adicional aporta menos), pudiendo llegar a 0.`},
+{lvl:5,t:'trampa',cat:"Trampa",q:`El equilibrio general (todos los mercados a la vez), ¿es de Marshall?`,a:`No: de Walras. Marshall trabaja el equilibrio de un mercado con sus "tijeras".`},
+{lvl:5,t:'trampa',cat:"Trampa",q:`¿La revolución marginalista es de principios del s. XIX?`,a:`No: los neoclásicos surgen a finales del s. XIX.`},
+{lvl:5,t:'trampa',cat:"Trampa",q:`¿Quién crea y quién dibuja la curva de indiferencia?`,a:`El concepto lo crea F. Edgeworth (1881), lo dibuja V. Pareto (1906) y lo popularizan Hicks y Allen.`},
+{lvl:5,t:'razon',cat:"Razonamiento",q:`¿Cómo resuelve la utilidad marginal la paradoja agua-diamante?`,a:`El precio depende de la utilidad marginal, no de la total: hay tanta agua que su utilidad marginal es baja; los diamantes son escasos, con utilidad marginal alta, y por eso caros.`},
+{lvl:5,t:'razon',cat:"Razonamiento",q:`¿Por qué los neoclásicos "completan" a los clásicos y no los rompen?`,a:`Porque no niegan la oferta (valor-trabajo): añaden la demanda (utilidad marginal) en la formación del precio.`},
+{lvl:5,t:'razon',cat:"Razonamiento",q:`¿Qué aporta el óptimo de Pareto para valorar una política?`,a:`Un criterio de eficiencia: si aún se puede mejorar a alguien sin empeorar a otro, hay margen; si no, es óptimo.`},
+{lvl:5,t:'razon',cat:"Razonamiento",q:`¿Por qué la "racionalidad perfecta" es el punto débil neoclásico?`,a:`Porque las personas no siempre deciden de forma perfectamente racional; la economía conductual muestra sesgos que el modelo ignora.`},
+{lvl:5,t:'razon',cat:"Razonamiento",q:`¿Por qué introducir matemáticas convierte la economía en "ciencia formal"?`,a:`Porque permite formular hipótesis precisas, modelizar y contrastar (econometría), acercándola al método de las ciencias exactas.`},
+{lvl:5,t:'razon',cat:"Razonamiento",q:`Un consumidor con renta fija: ¿cómo decide según los neoclásicos?`,a:`Maximiza su utilidad total combinando bienes hasta agotar el presupuesto, guiándose por la utilidad marginal de cada euro.`},
+{lvl:5,t:'actualidad',cat:"Actualidad",q:`Los precios dinámicos de Uber o de los vuelos en tiempo real, ¿qué enfoque encarnan?`,a:`El neoclásico: modelos matemáticos/econométricos que ajustan el precio según oferta y demanda al instante.`},
+{lvl:5,t:'actualidad',cat:"Actualidad",q:`La economía conductual (sesgos, Thaler, Kahneman), ¿qué límite neoclásico corrige?`,a:`El supuesto de racionalidad perfecta del individuo.`},
+{lvl:5,t:'actualidad',cat:"Actualidad",q:`Que el Nobel se conceda por herramientas econométricas, ¿qué escuela sembró esa semilla?`,a:`La neoclásica (aparato matemático). Ej.: Nobel 2021 a Card, Angrist e Imbens (mercado laboral).`},
+
+/* ---------- NIVEL 6 ---------- */
+{lvl:6,t:'refuerzo',cat:"Relación",q:`Menciona los cuatro autores de la escuela clásica inglesa del tema.`,a:`Adam Smith, David Ricardo, Thomas Malthus y John Stuart Mill.`},
+{lvl:6,t:'refuerzo',cat:"Relación",q:`Menciona los tres autores de la escuela clásica francesa del tema.`,a:`Jean Baptiste Say, Charles Dunoyer y Frédéric Bastiat.`},
+{lvl:6,t:'refuerzo',cat:"Contemporáneo",q:`¿A quiénes premió el Nobel de Economía 2021 y por qué?`,a:`A Card, Angrist e Imbens, por sus contribuciones al análisis del mercado laboral.`},
+{lvl:6,t:'refuerzo',cat:"Contemporáneo",q:`¿Qué escuela abre paso a Keynes y con qué acontecimiento?`,a:`La neoclásica pierde su predominio con la Gran Depresión de 1929, dando paso a Keynes.`},
+{lvl:6,t:'refuerzo',cat:"Obra→autor",q:`"Funky business forever" (2012): autores y para qué se cita.`,a:`Nordstrom y Ridderstrale; para mostrar que el 90% de los países usan el mercado (vigencia clásica).`},
+{lvl:6,t:'refuerzo',cat:"Retención",q:`Truco de fechas clave: 58, 67, 76.`,a:`1758 Quesnay (Tableau) · 1767 Turgot (rendimientos decrecientes) · 1776 Smith (Riqueza de las naciones). Van de 9 en 9 años.`},
+{lvl:6,t:'refuerzo',cat:"Retención",q:`Truco "orden de corrientes".`,a:`Mercantilismo → Fisiocracia → Clásica → Marxista → Neoclásica.`},
+{lvl:6,t:'refuerzo',cat:"Retención",q:`Truco "4 clásicos ingleses".`,a:`Smith, Ricardo, Malthus, Mill.`},
+{lvl:6,t:'refuerzo',cat:"Retención",q:`Truco "3 neoclásicos".`,a:`Marshall (tijeras), Walras (equilibrio general), Pareto (óptimo/curvas de indiferencia).`},
+{lvl:6,t:'trampa',cat:"Trampa",q:`¿Keynes forma parte del contenido central de este tema?`,a:`No como desarrollo: es el punto de inflexión tras 1929 y objeto del tema siguiente; aquí aparece como frontera.`},
+{lvl:6,t:'trampa',cat:"Trampa",q:`"Mano invisible" y "laissez faire", ¿mismo autor?`,a:`No: "mano invisible" es de Smith (clásico); "laissez faire" lo acuñan los fisiócratas.`},
+{lvl:6,t:'trampa',cat:"Trampa",q:`El valor-trabajo, ¿lo comparten Smith, Ricardo y los neoclásicos?`,a:`No: Smith, Ricardo y Marx. Los neoclásicos lo sustituyen por la utilidad marginal.`},
+{lvl:6,t:'trampa',cat:"Trampa",q:`¿La economía clásica surge en Francia?`,a:`No: en Inglaterra (Adam Smith). Francia tiene su rama clásica (Say, Dunoyer, Bastiat) y los fisiócratas.`},
+{lvl:6,t:'trampa',cat:"Trampa",q:`¿Es Pareto un economista clásico?`,a:`No: neoclásico; aplicó el marginalismo al equilibrio general de Walras.`},
+{lvl:6,t:'trampa',cat:"Trampa",q:`El óptimo de Pareto, ¿significa que todos están igual de bien?`,a:`No: que no se puede mejorar a nadie sin empeorar a otro; puede ser muy desigual y aun así "óptimo".`},
+{lvl:6,t:'trampa',cat:"Trampa",q:`¿La Gran Depresión fue en 1919?`,a:`No: en 1929.`},
+{lvl:6,t:'trampa',cat:"Trampa",q:`Ordena por fecha 1767, 1758 y 1776.`,a:`1758 (Quesnay) → 1767 (Turgot) → 1776 (Smith).`},
+{lvl:6,t:'razon',cat:"Razonamiento",q:`Hilo conductor: ¿cómo evoluciona el "origen de la riqueza" en el tema?`,a:`Metales/comercio (mercantilismo) → naturaleza/agricultura (fisiocracia) → trabajo (clásicos) → utilidad y mercado (neoclásicos). Marx reinterpreta el trabajo vía plusvalía.`},
+{lvl:6,t:'razon',cat:"Razonamiento",q:`¿Por qué "ninguna escuela explica sola" la realidad económica?`,a:`Porque cada una ilumina una parte (producción, trabajo, demanda, conflicto, matemática) y sus aportaciones se acumulan.`},
+{lvl:6,t:'razon',cat:"Razonamiento",q:`Traza la cadena de "reacciones" entre corrientes.`,a:`La fisiocracia reacciona al proteccionismo mercantilista; los clásicos parten de su liberalismo; el marxismo reacciona al exceso de fe clásica en el equilibrio; los neoclásicos completan a los clásicos con la utilidad marginal.`},
+{lvl:6,t:'razon',cat:"Razonamiento",q:`¿Qué relaciones "maestro/influencia" conectan a Ricardo con Marx y a Marshall con Keynes?`,a:`Ricardo influye en Marx (valor-trabajo y acumulación de capital); Marshall es maestro de Keynes en Cambridge.`},
+{lvl:6,t:'razon',cat:"Razonamiento",q:`Defiende que Marx "acertó en el diagnóstico pero falló en el pronóstico".`,a:`Acertó al señalar las tensiones capital-trabajo (hoy vigentes con la automatización); falló en el colapso, porque el Estado del bienestar redistribuyó y estabilizó el sistema.`},
+{lvl:6,t:'razon',cat:"Razonamiento",q:`¿Por qué Say es un "puente" hacia los neoclásicos?`,a:`Porque su teoría del valor por utilidad anticipa la utilidad marginal, alejándose del valor-trabajo.`},
+{lvl:6,t:'razon',cat:"Razonamiento",q:`¿Qué une a Bastiat y los clásicos frente a List y los mercantilistas?`,a:`Bastiat y los clásicos defienden el librecambio; List y los mercantilistas, el proteccionismo (List solo temporal).`},
+{lvl:6,t:'actualidad',cat:"Actualidad",q:`El fracaso de la OPA de BBVA sobre Sabadell (oct. 2025), ¿qué debate del tema ilustra?`,a:`El del papel del Estado y la regulación en la economía (citado en la introducción): BBVA solo logró ~25% del capital y la operación no salió adelante.`},
+{lvl:6,t:'actualidad',cat:"Actualidad",q:`El Nobel de Economía 2025 (Mokyr, Aghion y Howitt) premió el crecimiento por innovación. ¿Con qué idea del cierre conecta?`,a:`Con que las corrientes se acumulan y la economía sigue viva; enlaza con el papel de la tecnología ya presente en el debate (Marx, neoclásicos, econometría del Nobel 2021).`},
+{lvl:6,t:'actualidad',cat:"Actualidad",q:`Guerras comerciales y "autonomía estratégica" (chips, baterías) en 2025–2026, ¿qué tensión reeditan?`,a:`Proteccionismo (mercantilismo/List) frente a librecambio (clásicos/Bastiat): el viejo debate sigue vivo.`},
+{lvl:6,t:'actualidad',cat:"Actualidad",q:`La "economía mixta" (mercado + Estado del bienestar) actual, ¿de qué síntesis histórica nace?`,a:`De la tensión clásicos↔Marx: el mercado clásico corregido con la redistribución que impulsó la crítica marxista.`},
+
+/* ---------- AMPLIACIÓN 2: reconocimiento inverso, citas, fechas, actualidad ---------- */
+{lvl:2,t:'refuerzo',cat:"Fecha",q:`¿A qué siglo pertenece la Escuela de Salamanca?`,a:`Al s. XVI.`},
+{lvl:2,t:'refuerzo',cat:"Fecha",q:`¿A qué siglos pertenece el mercantilismo?`,a:`s. XVI–XVIII.`},
+{lvl:2,t:'refuerzo',cat:"Fecha",q:`¿A qué siglo pertenece la fisiocracia?`,a:`s. XVIII.`},
+{lvl:2,t:'refuerzo',cat:"Cita→autor",q:`"…desplumar el ganso con el menor número de graznidos", ¿autor?`,a:`Jean Baptiste Colbert.`},
+{lvl:2,t:'razon',cat:"Razonamiento",q:`¿Por qué el mercantilismo "se aleja de la filosofía"?`,a:`Porque se centra en un objetivo práctico —acumular riqueza en forma de metales— más que en reflexiones morales o filosóficas.`},
+{lvl:3,t:'refuerzo',cat:"Autor",q:`¿Quién introdujo el "método abstracto" en la economía?`,a:`David Ricardo.`},
+{lvl:3,t:'refuerzo',cat:"Cita→autor",q:`"No es de la benevolencia del carnicero o del panadero…", ¿autor?`,a:`Adam Smith.`},
+{lvl:3,t:'refuerzo',cat:"Obra→autor",q:`"Investigación sobre la naturaleza y causas de la riqueza de las naciones", ¿autor y año?`,a:`Adam Smith, 1776.`},
+{lvl:3,t:'refuerzo',cat:"Concepto",q:`¿Qué funciones asigna Smith al Estado mínimo?`,a:`Justicia, obras públicas y defensa nacional, protegiendo la propiedad privada.`},
+{lvl:3,t:'razon',cat:"Razonamiento",q:`Según Say, ¿por qué no debería haber paro duradero?`,a:`Porque al producir se generan rentas (salarios) que se gastan en otros bienes: la oferta crea la demanda que sostiene el empleo.`},
+{lvl:3,t:'trampa',cat:"Trampa",q:`¿La escuela clásica surge en el s. XVII?`,a:`No: a mitad del s. XVIII (Smith, 1776).`},
+{lvl:3,t:'actualidad',cat:"Actualidad",q:`Un discurso actual de "bajar impuestos y menos Estado", ¿de qué autor bebe?`,a:`De Adam Smith y el Estado mínimo clásico.`},
+{lvl:4,t:'refuerzo',cat:"Cita→autor",q:`"Competencia universal… un sistema peligroso" (superproducción), ¿autor?`,a:`Jean Charles Léonard de Sismondi.`},
+{lvl:4,t:'refuerzo',cat:"Concepto",q:`¿Cómo llama Marx a los desempleados generados por la mecanización?`,a:`"Ejército industrial de parados".`},
+{lvl:4,t:'razon',cat:"Razonamiento",q:`¿Por qué el materialismo dialéctico se llama "científico" frente al utópico?`,a:`Porque pretende explicar los cambios sociales con leyes objetivas, no con ideales o deseos.`},
+{lvl:4,t:'actualidad',cat:"Actualidad",q:`El debate sobre "quién se queda el valor que genera la tecnología", ¿qué concepto marxista evoca?`,a:`La plusvalía y su reparto (capital frente a trabajo).`},
+{lvl:5,t:'refuerzo',cat:"Autor",q:`¿Quién fue maestro de Keynes en Cambridge?`,a:`Alfred Marshall.`},
+{lvl:5,t:'refuerzo',cat:"Concepto",q:`¿Qué dos límites acotan al consumidor neoclásico?`,a:`La utilidad marginal decreciente y la limitación presupuestaria (renta disponible).`},
+{lvl:5,t:'razon',cat:"Razonamiento",q:`¿Por qué el equilibrio general de Walras es "interdependiente"?`,a:`Porque el precio de cada mercado depende de los demás; se resuelven a la vez mediante ecuaciones simultáneas.`},
+{lvl:5,t:'trampa',cat:"Trampa",q:`¿La economía neoclásica rechaza el mercado?`,a:`No: lo refuerza como asignador de recursos, ahora con aparato matemático.`},
+{lvl:5,t:'actualidad',cat:"Actualidad",q:`Los modelos econométricos de bancos centrales y empresas, ¿de qué escuela son herederos?`,a:`De la neoclásica (aparato matemático riguroso).`},
+{lvl:6,t:'refuerzo',cat:"Fecha→hito",q:`Asocia: 1758 y 1767.`,a:`1758: Tableau Économique de Quesnay. 1767: ley de rendimientos decrecientes de Turgot.`},
+{lvl:6,t:'refuerzo',cat:"Retención",q:`Truco "3 franceses clásicos".`,a:`Say (ley de Say/utilidad), Dunoyer (anarquía económica), Bastiat (antiproteccionismo/velas).`},
+{lvl:6,t:'razon',cat:"Razonamiento",q:`¿Qué corriente conecta la "utilidad" de Say con la "utilidad marginal"?`,a:`La neoclásica: recoge la idea de Say (valor por utilidad) y la formaliza como utilidad marginal.`},
+{lvl:6,t:'trampa',cat:"Trampa",q:`¿"El manifiesto comunista" es obra de Sismondi?`,a:`No: de Marx y Engels. Sismondi es un crítico anterior (superproducción).`},
+{lvl:6,t:'actualidad',cat:"Actualidad",q:`Titular: "la UE frena la importación de coches eléctricos chinos". ¿Mercantilismo, List o Bastiat?`,a:`Proteccionismo: mercantilismo y, como industria estratégica, List; Bastiat lo criticaría (defiende el librecambio).`}
+];
+
+/* ==================== PERSISTENCIA (con fallback en memoria) ==================== */
+const STORE_KEY = "flashTema4_v1";
+let memStore = {};
+const store = {
+  get(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return memStore; } },
+  set(o){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(o)); }catch(e){ memStore = o; } }
+};
+let progress = store.get();          // { id: box(0..5) }
+function boxOf(id){ return progress[id] || 0; }
+function saveBox(id,b){ progress[id]=b; store.set(progress); }
+
+/* ==================== ESTADO ==================== */
+let filter = 'all';         // 'all' o número de nivel
+let filterType = 'all';     // 'all' o tipo de tarjeta
+let onlyPending = false;
+let order = [];             // ids en orden de estudio
+let pos = 0;
+let revealed = false;
+
+const TYPES = {
+  all:{l:'Todas', d:'Todo tipo'},
+  base:{l:'📘 Base', d:'Conceptos'},
+  refuerzo:{l:'🔁 Refuerzo', d:'Fijar y reconocer'},
+  trampa:{l:'⚠️ Trampa', d:'Para pillarte'},
+  razon:{l:'🧠 Razonar', d:'Comprender'},
+  actualidad:{l:'📰 Actualidad', d:'Conectar hoy'}
+};
+function tOf(i){ return CARDS[i].t || 'base'; }
+
+/* ==================== INIT UI ==================== */
+function buildLevels(){
+  const nav = document.getElementById('levels');
+  const mk = (key,label,desc)=>`<button class="lv" data-k="${key}" onclick="setFilter('${key}')">${label}<small>${desc}</small></button>`;
+  let html = mk('all','Todos','Nivel completo');
+  for(let l=1;l<=6;l++) html += mk(String(l),LEVELS[l].name,LEVELS[l].desc);
+  nav.innerHTML = html;
+  markActive('levels', filter);
+}
+function buildTypes(){
+  const nav = document.getElementById('types');
+  const mk = (key,o)=>`<button class="lv" data-k="${key}" onclick="setType('${key}')">${o.l}<small>${o.d}</small></button>`;
+  let html = '';
+  for(const k in TYPES) html += mk(k, TYPES[k]);
+  nav.innerHTML = html;
+  markActive('types', filterType);
+}
+function markActive(navId, val){
+  document.querySelectorAll('#'+navId+' .lv').forEach(b=>b.classList.toggle('active', b.dataset.k===String(val)));
+}
+function inScope(i){
+  const lvlOk  = (filter==='all')     || CARDS[i].lvl===Number(filter);
+  const typeOk = (filterType==='all') || tOf(i)===filterType;
+  return lvlOk && typeOk;
+}
+function scopeIds(){ return CARDS.map((c,i)=>i).filter(inScope); }
+function idsForFilter(){
+  let ids = scopeIds();
+  if(onlyPending) ids = ids.filter(i => boxOf(i) < 5);
+  return ids;
+}
+function buildOrder(){
+  let ids = idsForFilter();
+  // ordenar por nivel de dominio ascendente (las que peor llevas, primero)
+  ids.sort((a,b)=> boxOf(a)-boxOf(b));
+  order = ids; pos = 0;
+}
+
+/* ==================== RENDER ==================== */
+function render(){
+  updateStats();
+  if(order.length===0){
+    document.getElementById('card').innerHTML =
+      `<div class="done-msg">✅ No hay tarjetas pendientes en este filtro.<br><br>Prueba otro nivel o desactiva "solo pendientes".</div>`;
+    document.getElementById('rateRow').style.display='none';
+    document.getElementById('counter').textContent='0 / 0';
+    document.getElementById('cardCat').textContent='—';
+    document.getElementById('cardDom').innerHTML='';
+    return;
+  }
+  const id = order[pos];
+  const c = CARDS[id];
+  revealed=false;
+  const box = boxOf(id);
+  document.getElementById('card').innerHTML =
+    `<div id="frontBlock">
+        <span class="qlabel">${LEVELS[c.lvl].name} · Pregunta</span>
+        <div class="q">${c.q}</div>
+     </div>
+     <div id="hiddenA" class="hidden-a">👆 <span class="tap">Pulsa para ver la respuesta</span></div>
+     <div id="answerBlock" style="display:none">
+        <div class="divider"></div>
+        <div class="a"><span class="alabel">Respuesta</span><span>${c.a}</span></div>
+     </div>`;
+  document.getElementById('cardCat').textContent = c.cat;
+  // dominio dots + badge
+  let dom = '';
+  for(let i=1;i<=5;i++) dom += `<span class="dot ${i<=box?'on':''}"></span>`;
+  if(box>=5) dom += ` <span class="badge">✓ Dominada</span>`;
+  document.getElementById('cardDom').innerHTML = dom;
+  document.getElementById('rateRow').style.display='none';
+  document.getElementById('counter').textContent = `${pos+1} / ${order.length}`;
+}
+
+function reveal(){
+  if(revealed) return;
+  const c = CARDS[order[pos]];
+  if(!c) return;
+  document.getElementById('hiddenA').style.display='none';
+  const ab = document.getElementById('answerBlock');
+  ab.style.display='block'; ab.classList.add('reveal-anim');
+  document.getElementById('rateRow').style.display='flex';
+  revealed=true;
+}
+
+/* ==================== RATING (Leitner) ==================== */
+function rate(good,ev){
+  if(ev) ev.stopPropagation();
+  if(order.length===0) return;
+  const id = order[pos];
+  let box = boxOf(id);
+  box = good ? Math.min(5,box+1) : Math.max(0,box-1);
+  saveBox(id,box);
+  // reposicionar en la cola
+  order.splice(pos,1);
+  if(good){
+    order.push(id);                                   // al final
+  } else {
+    const insertAt = Math.min(pos+4, order.length);   // reaparece pronto
+    order.splice(insertAt,0,id);
+  }
+  if(pos>=order.length) pos=0;
+  render();
+}
+
+/* ==================== NAV ==================== */
+function next(ev){ if(ev) ev.stopPropagation(); if(order.length){ pos=(pos+1)%order.length; render(); } }
+function prev(ev){ if(ev) ev.stopPropagation(); if(order.length){ pos=(pos-1+order.length)%order.length; render(); } }
+function shuffle(ev){
+  if(ev) ev.stopPropagation();
+  for(let i=order.length-1;i>0;i--){ const j=Math.floor((i+1)*fakeRand(i)); [order[i],order[j]]=[order[j],order[i]]; }
+  pos=0; render();
+}
+// pequeña aleatoriedad sin depender de Math.random para orden estable-ish
+let seed = 7;
+function fakeRand(x){ seed = (seed*9301 + 49297 + x*233) % 233280; return seed/233280; }
+
+/* ==================== FILTROS / TOOLS ==================== */
+function setFilter(k){ filter = (k==='all')?'all':k; markActive('levels',filter); buildOrder(); render(); }
+function setType(k){ filterType = k; markActive('types',filterType); buildOrder(); render(); }
+function toggleOnlyPending(){
+  onlyPending=!onlyPending;
+  document.getElementById('pendLink').textContent = onlyPending ? 'Mostrar todas' : 'Mostrar solo pendientes';
+  buildOrder(); render();
+}
+function resetProgress(){
+  if(confirm('¿Seguro que quieres reiniciar todo tu progreso de dominio?')){
+    progress={}; store.set(progress); buildOrder(); render();
+  }
+}
+
+/* ==================== STATS ==================== */
+function updateStats(){
+  const scope = scopeIds();
+  const total = scope.length;
+  let dom=0, rep=0, pts=0;
+  scope.forEach(i=>{ const b=boxOf(i); pts+=b; if(b>=5)dom++; else if(b>0)rep++; });
+  const pct = total? Math.round((pts/(total*5))*100):0;
+  document.getElementById('stDom').textContent=dom;
+  document.getElementById('stRep').textContent=rep;
+  document.getElementById('stTot').textContent=total;
+  document.getElementById('stPct').textContent=pct+'% dominio';
+  document.getElementById('barFill').style.width=pct+'%';
+}
+
+/* ==================== TECLADO ==================== */
+document.addEventListener('keydown',e=>{
+  if(e.key===' '||e.key==='Enter'){ e.preventDefault(); revealed?next():reveal(); }
+  else if(e.key==='ArrowRight') next();
+  else if(e.key==='ArrowLeft') prev();
+  else if(e.key==='1' && revealed) rate(false);
+  else if(e.key==='2' && revealed) rate(true);
+});
+
+/* ==================== ARRANQUE ==================== */
+buildLevels();
+buildTypes();
+buildOrder();
+render();
+</script>
+</body>
+</html>
