@@ -158,7 +158,8 @@ const LEVELS = {
   3:{name:"N3", desc:"Economía clásica"},
   4:{name:"N4", desc:"Crítica marxista"},
   5:{name:"N5", desc:"Economía neoclásica"},
-  6:{name:"N6", desc:"Relaciones y síntesis"}
+  6:{name:"N6", desc:"Relaciones y síntesis"},
+  7:{name:"N7", desc:"Autores y corrientes"}
 };
 
 const CARDS = [
@@ -496,7 +497,145 @@ const CARDS = [
 {lvl:6,t:'refuerzo',cat:"Retención",q:`Truco "3 franceses clásicos".`,a:`Say (ley de Say/utilidad), Dunoyer (anarquía económica), Bastiat (antiproteccionismo/velas).`},
 {lvl:6,t:'razon',cat:"Razonamiento",q:`¿Qué corriente conecta la "utilidad" de Say con la "utilidad marginal"?`,a:`La neoclásica: recoge la idea de Say (valor por utilidad) y la formaliza como utilidad marginal.`},
 {lvl:6,t:'trampa',cat:"Trampa",q:`¿"El manifiesto comunista" es obra de Sismondi?`,a:`No: de Marx y Engels. Sismondi es un crítico anterior (superproducción).`},
-{lvl:6,t:'actualidad',cat:"Actualidad",q:`Titular: "la UE frena la importación de coches eléctricos chinos". ¿Mercantilismo, List o Bastiat?`,a:`Proteccionismo: mercantilismo y, como industria estratégica, List; Bastiat lo criticaría (defiende el librecambio).`}
+{lvl:6,t:'actualidad',cat:"Actualidad",q:`Titular: "la UE frena la importación de coches eléctricos chinos". ¿Mercantilismo, List o Bastiat?`,a:`Proteccionismo: mercantilismo y, como industria estratégica, List; Bastiat lo criticaría (defiende el librecambio).`},
+
+/* ============================================================
+   NIVEL 7 · AUTORES Y CORRIENTES  (sección dedicada en exclusiva)
+   Todo el "quién es quién": cada autor y cada corriente a fondo.
+   ============================================================ */
+
+/* ---- AUTORES ---- */
+
+/* Aristóteles */
+{lvl:7,cat:"Autor",q:`¿A qué época pertenece Aristóteles y qué término económico acuñó?`,a:`A la Antigua Grecia; acuñó el término "crematística".`},
+{lvl:7,cat:"Teoría",q:`¿Qué es la "crematística" y cómo la valoraba Aristóteles?`,a:`La acumulación de riqueza como fin en sí mismo; la consideraba contraria a la naturaleza, frente a la "oikonomía" (administración del hogar orientada al bienestar).`},
+{lvl:7,cat:"Teoría",q:`¿Qué postura tenía Aristóteles sobre la usura?`,a:`La condenaba: consideraba inmoral el cobro (excesivo) de intereses.`},
+
+/* Santo Tomás de Aquino */
+{lvl:7,cat:"Autor",q:`¿A qué corriente y época pertenece Santo Tomás de Aquino?`,a:`A la escolástica, en la Edad Media.`},
+{lvl:7,cat:"Teoría",q:`¿Qué defendió Santo Tomás de Aquino sobre los precios y la usura?`,a:`Los precios "justos" (que los comerciantes no se lucraran en exceso) y condenó la usura, conectando con Aristóteles.`},
+
+/* Escuela de Salamanca */
+{lvl:7,cat:"Corriente",q:`¿Qué es la Escuela de Salamanca y de qué siglo?`,a:`Un grupo de pensadores del s. XVI (Renacimiento).`},
+{lvl:7,cat:"Teoría",q:`¿Qué aportó/anticipó la Escuela de Salamanca?`,a:`Relacionó el aumento de la masa monetaria (plata de América) con la subida de precios: anticipó la teoría cuantitativa del dinero.`},
+
+/* Colbert */
+{lvl:7,cat:"Autor",q:`¿Quién fue Jean Baptiste Colbert y a qué corriente pertenece?`,a:`Ministro de finanzas francés, del mercantilismo.`},
+{lvl:7,cat:"Teoría",q:`¿Qué defendía Colbert?`,a:`Las manufacturas nacionales y el aumento del sector público.`},
+{lvl:7,cat:"Cita",q:`¿Qué cita se atribuye a Colbert?`,a:`"El arte de la tributación consiste en desplumar el ganso para obtener la mayor cantidad de plumas con el menor número de graznidos posibles".`},
+
+/* Uztáriz */
+{lvl:7,cat:"Autor",q:`¿Quién fue Jerónimo de Uztáriz y a qué corriente pertenece?`,a:`Mercantilista español.`},
+{lvl:7,cat:"Teoría",q:`¿Qué defendía Uztáriz y qué matiz lo distingue?`,a:`Reservar el comercio con las Indias para España y el proteccionismo, pero con una postura algo menos intervencionista (más iniciativa privada).`},
+
+/* Quesnay */
+{lvl:7,cat:"Autor",q:`¿A qué corriente pertenece François Quesnay y qué obra publicó?`,a:`A la fisiocracia; publicó el "Tableau Économique" (1758).`},
+{lvl:7,cat:"Teoría",q:`¿Qué representa el "Tableau Économique" de Quesnay?`,a:`Uno de los primeros esquemas circulatorios de la economía, precursor del flujo circular de la renta (sin incluir al Estado).`},
+
+/* Turgot */
+{lvl:7,cat:"Autor",q:`¿A qué corriente pertenece Turgot y qué ley formuló?`,a:`A la fisiocracia; formuló la ley de los rendimientos decrecientes (1767, aplicada a la agricultura).`},
+{lvl:7,cat:"Cita",q:`¿Qué cita ilustra la ley de Turgot?`,a:`"La fertilidad de la tierra es como un muelle cuando se comprime (…) el efecto de las sucesivas cargas disminuye gradualmente".`},
+
+/* Adam Smith */
+{lvl:7,cat:"Autor",q:`¿Quién es el padre de la economía clásica y de qué era catedrático?`,a:`Adam Smith; catedrático de Filosofía moral (ética).`},
+{lvl:7,cat:"Obra",q:`¿Cuál es la obra de Adam Smith y de qué año?`,a:`"Investigación sobre la naturaleza y causas de la riqueza de las naciones" (1776).`},
+{lvl:7,cat:"Teoría",q:`¿En qué consiste la "mano invisible" de Adam Smith?`,a:`Cada individuo, buscando su interés, es guiado por el mercado y, al obtener su beneficio, contribuye al beneficio colectivo.`},
+{lvl:7,cat:"Cita",q:`¿Qué cita resume la "mano invisible"?`,a:`"No es de la benevolencia del carnicero o del panadero de donde obtenemos nuestra cena, sino de la búsqueda de sus propios intereses individuales".`},
+{lvl:7,cat:"Teoría",q:`Enumera las principales aportaciones de Adam Smith.`,a:`Oferta y demanda; teoría del valor-trabajo (precio ≠ valor); acumulación de capital; división del trabajo; y la ventaja absoluta.`},
+{lvl:7,cat:"Teoría",q:`¿Qué papel del Estado defendía Adam Smith?`,a:`Un Estado mínimo (justicia, obras públicas, defensa nacional) centrado en proteger la propiedad privada.`},
+{lvl:7,cat:"Teoría",q:`¿Qué es la ventaja absoluta (Smith)?`,a:`Cada país debe especializarse en producir aquello en lo que tiene ventaja absoluta frente a otros.`},
+
+/* David Ricardo */
+{lvl:7,cat:"Autor",q:`¿Quién fue el gran desarrollador de las ideas clásicas y qué método usó?`,a:`David Ricardo; empleó el método abstracto (de las evidencias a conclusiones aceptables).`},
+{lvl:7,cat:"Teoría",q:`¿Qué es la ventaja comparativa (Ricardo)?`,a:`Especializarse en los productos con mayor ventaja o menor desventaja comparativa, aunque se tenga desventaja absoluta en todos.`},
+{lvl:7,cat:"Teoría",q:`¿Qué es el "estado estacionario" de Ricardo?`,a:`Por los rendimientos decrecientes, a largo plazo la producción deja de crecer y se estabiliza.`},
+{lvl:7,cat:"Relación",q:`¿En qué influyó Ricardo a Marx?`,a:`En la acumulación de capital (y en la teoría del valor-trabajo).`},
+
+/* Malthus */
+{lvl:7,cat:"Autor",q:`¿A qué escuela pertenece Malthus y a qué aplicó los rendimientos decrecientes?`,a:`A la escuela clásica inglesa; los aplicó a la población y al sector agrícola.`},
+{lvl:7,cat:"Teoría",q:`¿Cuál era la conclusión de Malthus?`,a:`La población crece más que la producción de alimentos, por lo que llegarían guerras o epidemias de ajuste.`},
+{lvl:7,cat:"Teoría",q:`¿Se cumplió Malthus y dónde se aplica hoy?`,a:`No en humanos (tecnología y caída de la natalidad); sí en Biología de poblaciones (hongos, bacterias…).`},
+{lvl:7,cat:"Relación",q:`¿Qué relación tuvo Malthus con la ley de Say?`,a:`Fue el único economista clásico que NO la aceptó.`},
+
+/* John Stuart Mill */
+{lvl:7,cat:"Autor",q:`¿Cómo se describe a John Stuart Mill?`,a:`Como un gran sintetizador de las ideas clásicas y un adelantado (esclavitud, salarios bajos).`},
+{lvl:7,cat:"Teoría",q:`¿Qué ejemplo creó Mill y quién lo popularizó?`,a:`El ejemplo del "faro" (bienes públicos); lo popularizó Paul Samuelson.`},
+
+/* Say */
+{lvl:7,cat:"Autor",q:`¿A qué escuela pertenece Jean Baptiste Say?`,a:`A la escuela clásica francesa.`},
+{lvl:7,cat:"Teoría",q:`¿Qué afirma la "ley de Say"?`,a:`Que la oferta crea su propia demanda; no hay crisis por falta de demanda y se tiende al pleno empleo.`},
+{lvl:7,cat:"Teoría",q:`¿En qué se basa la teoría del valor de Say?`,a:`En la utilidad que el bien aporta al individuo, no en el trabajo.`},
+
+/* Dunoyer */
+{lvl:7,cat:"Autor",q:`¿Quién fue Charles Dunoyer y qué defendía?`,a:`Economista de la escuela clásica francesa; llevó la libertad económica casi hasta la "anarquía económica" (Estado solo orden jurídico).`},
+
+/* Bastiat */
+{lvl:7,cat:"Autor",q:`¿Quién fue Frédéric Bastiat y por qué es conocido?`,a:`Economista clásico francés, firme opositor al proteccionismo; famoso por sus sátiras.`},
+{lvl:7,cat:"Obra",q:`¿Cuál es la sátira más célebre de Bastiat y contra qué "competidor" es?`,a:`"La petición de los fabricantes de velas"; piden protección frente al sol.`},
+
+/* List */
+{lvl:7,cat:"Autor",q:`¿A qué grupo pertenece Georg Friedrich List y qué defendía?`,a:`A las "primeras críticas" (economista alemán); defendía el proteccionismo temporal para la industria naciente.`},
+
+/* Sismondi */
+{lvl:7,cat:"Autor",q:`¿Quién fue Sismondi y qué criticó?`,a:`Crítico francés; en contra de la ley de Say, advirtió que la industria moderna iba hacia la superproducción ("un sistema peligroso").`},
+
+/* Marx */
+{lvl:7,cat:"Autor",q:`¿Quién representa la mayor crítica al pensamiento clásico y de qué siglo?`,a:`Karl Marx, en el s. XIX.`},
+{lvl:7,cat:"Obra",q:`¿Cuáles son las obras principales de Marx?`,a:`"El capital" y "El manifiesto comunista" (esta con Friedrich Engels).`},
+{lvl:7,cat:"Teoría",q:`¿Qué es el "socialismo científico" o materialismo dialéctico de Marx?`,a:`Explicar los fenómenos sociales mediante leyes objetivas, alejándose del socialismo utópico.`},
+{lvl:7,cat:"Teoría",q:`¿Qué es la plusvalía?`,a:`La diferencia entre el valor que genera el trabajador y su salario, apropiada por el empresario; base de la explotación capitalista.`},
+{lvl:7,cat:"Teoría",q:`¿A qué da lugar el conflicto capital-trabajo y qué es el "ejército industrial de parados"?`,a:`A la lucha de clases; el "ejército industrial de parados" son los desempleados por la mecanización que, sin ingresos, no pueden consumir.`},
+{lvl:7,cat:"Teoría",q:`¿Dónde preveía Marx el colapso y cuál fue su gran aportación?`,a:`Lo preveía en Francia/Alemania (no en Rusia); su gran aportación fue mostrar las tensiones internas capital-trabajo.`},
+
+/* Engels */
+{lvl:7,cat:"Autor",q:`¿Qué papel tiene Friedrich Engels en el tema?`,a:`Es el coautor, junto a Marx, de "El manifiesto comunista".`},
+
+/* Marshall */
+{lvl:7,cat:"Autor",q:`¿Quién es el máximo exponente neoclásico y de quién fue maestro?`,a:`Alfred Marshall, profesor en Cambridge y maestro de J. M. Keynes.`},
+{lvl:7,cat:"Teoría",q:`¿Qué son las "tijeras marshallianas"?`,a:`El equilibrio por oferta (costes marginales crecientes) y demanda (utilidad marginal decreciente).`},
+
+/* Walras */
+{lvl:7,cat:"Autor",q:`¿Qué formalizó Léon Walras?`,a:`El equilibrio general: mediante ecuaciones simultáneas, todos los mercados se equilibran de forma interdependiente.`},
+
+/* Pareto */
+{lvl:7,cat:"Autor",q:`¿Qué aportó Vilfredo Pareto?`,a:`Aplicó el marginalismo al equilibrio general de Walras; aportó las curvas de indiferencia y el óptimo de Pareto.`},
+{lvl:7,cat:"Teoría",q:`¿Qué es el óptimo de Pareto?`,a:`El punto en que ningún agente puede mejorar sin reducir el bienestar de otro.`},
+{lvl:7,cat:"Teoría",q:`¿Qué son las curvas de indiferencia?`,a:`Combinaciones de bienes para las que la satisfacción del consumidor es idéntica.`},
+
+/* Edgeworth / Hicks y Allen */
+{lvl:7,cat:"Autor",q:`¿Quién crea el concepto de curva de indiferencia y en qué año?`,a:`F. Edgeworth, en 1881.`},
+{lvl:7,cat:"Autor",q:`¿Quién dibuja las curvas de indiferencia y quiénes las popularizan?`,a:`Las dibuja Vilfredo Pareto (1906) y las popularizan Hicks y Allen.`},
+
+/* Keynes */
+{lvl:7,cat:"Autor",q:`¿Qué papel tiene Keynes en este tema?`,a:`Es la frontera: con la Gran Depresión de 1929 termina el predominio neoclásico; su desarrollo es el tema siguiente.`},
+{lvl:7,cat:"Relación",q:`¿Con qué idea clásica rompe Keynes?`,a:`Con la ley de Say, por sus ideas sobre la preferencia por el ahorro.`},
+
+/* Autores-fuente y contemporáneos */
+{lvl:7,cat:"Autor-fuente",q:`¿Qué aportan Samuelson y Nordhaus al tema?`,a:`La definición de economía (recursos escasos / necesidades ilimitadas); además, Samuelson popularizó el ejemplo del faro de Mill.`},
+{lvl:7,cat:"Autor-fuente",q:`¿Qué autores-fuente estructuran el tema y con qué obras?`,a:`Galbraith ("Historia de la economía", periodización pre-científico/científico) y Harry Landreth ("Historia del pensamiento económico").`},
+{lvl:7,cat:"Autor-fuente",q:`¿Quiénes escriben "Funky business forever" (2012) y qué muestran?`,a:`K. Nordstrom y J. Ridderstrale; que el 90% de los países usan el mercado (vigencia clásica).`},
+{lvl:7,cat:"Contemporáneo",q:`¿Quiénes ganaron el Nobel de Economía 2021 y por qué?`,a:`David Card, Joshua Angrist y Guido Imbens, por el análisis del mercado laboral (herencia econométrica neoclásica).`},
+
+/* ---- CORRIENTES DE PENSAMIENTO ---- */
+
+{lvl:7,cat:"Corriente",q:`¿Qué dos periodos distingue Galbraith y qué los separa?`,a:`Pre-científico (hasta mitad del s. XVIII, economía unida a la filosofía) y científico (desde Adam Smith, ciencia independiente).`},
+{lvl:7,cat:"Corriente",q:`¿Qué es la escolástica y de qué se preocupaba?`,a:`Movimiento filosófico-teológico medieval; se preocupó por el precio justo y el reparto equitativo de la riqueza.`},
+{lvl:7,cat:"Corriente",q:`Mercantilismo: siglos e idea central.`,a:`s. XVI–XVIII; la riqueza es constante y se mide en oro y plata, y se aumenta exportando más.`},
+{lvl:7,cat:"Corriente",q:`Mercantilismo: ¿a qué política lleva y qué autores lo representan?`,a:`Al proteccionismo y al poder centralizado; autores: Colbert y Uztáriz.`},
+{lvl:7,cat:"Corriente",q:`Mercantilismo: ejemplo actual y balance.`,a:`Ejemplo: aranceles de Trump. Balance: erró al identificar riqueza con metales, pero fortaleció los Estados modernos.`},
+{lvl:7,cat:"Corriente",q:`Fisiocracia: siglo, idea central y término que acuña.`,a:`s. XVIII; la riqueza nace de la naturaleza (sector primario); acuña el "Laissez faire".`},
+{lvl:7,cat:"Corriente",q:`Fisiocracia: autores, ejemplo actual y límite.`,a:`Autores: Quesnay y Turgot. Ejemplo: energías renovables. Límite: solo la agricultura genera producto neto (ignora industria y comercio).`},
+{lvl:7,cat:"Corriente",q:`Economía clásica: dónde y cuándo surge y qué supone.`,a:`En Inglaterra, a mitad del s. XVIII, con Adam Smith; la economía pasa a ser ciencia independiente.`},
+{lvl:7,cat:"Corriente",q:`¿Qué autores forman la escuela clásica inglesa?`,a:`Adam Smith, David Ricardo, Thomas Malthus y John Stuart Mill.`},
+{lvl:7,cat:"Corriente",q:`¿Qué autores forman la escuela clásica francesa?`,a:`Jean Baptiste Say, Charles Dunoyer y Frédéric Bastiat.`},
+{lvl:7,cat:"Corriente",q:`Economía clásica: idea central del valor y su límite.`,a:`El valor lo da el trabajo (teoría del valor-trabajo); su límite fue el exceso de confianza en el equilibrio automático (ley de Say).`},
+{lvl:7,cat:"Corriente",q:`¿Quiénes forman las "primeras críticas" y cuándo?`,a:`Georg Friedrich List (alemán) y Sismondi (francés), a principios del s. XIX.`},
+{lvl:7,cat:"Corriente",q:`Crítica marxista: figura principal, aportación y consecuencia histórica.`,a:`Karl Marx (s. XIX); mostró las tensiones capital-trabajo e impulsó el desarrollo del Estado del bienestar y las economías mixtas.`},
+{lvl:7,cat:"Corriente",q:`Economía neoclásica: cuándo surge y qué introduce.`,a:`A finales del s. XIX; introduce el análisis matemático y la utilidad marginal (Revolución marginalista).`},
+{lvl:7,cat:"Corriente",q:`Economía neoclásica: qué sustituye y qué autores la forman.`,a:`Sustituye el valor-trabajo por la utilidad marginal; autores: Marshall, Walras y Pareto (además de Edgeworth, Hicks y Allen).`},
+{lvl:7,cat:"Corriente",q:`Economía neoclásica: aportación y límite.`,a:`Aportación: dotar a la economía de un aparato matemático riguroso (ciencia formal). Límite: asumir la racionalidad perfecta, hoy cuestionada por la economía conductual.`},
+{lvl:7,cat:"Corriente",q:`¿Qué es la "Revolución marginalista"?`,a:`El giro neoclásico que explica el valor también por la demanda, determinada por la utilidad marginal.`},
+{lvl:7,cat:"Corriente",q:`Ordena cronológicamente las corrientes del tema.`,a:`Escolástica → Escuela de Salamanca → Mercantilismo → Fisiocracia → Economía clásica → Crítica marxista y Economía neoclásica → (Keynes, tema siguiente).`}
 ];
 
 /* ==================== PERSISTENCIA (con fallback en memoria) ==================== */
@@ -533,7 +672,7 @@ function buildLevels(){
   const nav = document.getElementById('levels');
   const mk = (key,label,desc)=>`<button class="lv" data-k="${key}" onclick="setFilter('${key}')">${label}<small>${desc}</small></button>`;
   let html = mk('all','Todos','Nivel completo');
-  for(let l=1;l<=6;l++) html += mk(String(l),LEVELS[l].name,LEVELS[l].desc);
+  for(let l=1;l<=7;l++) html += mk(String(l),LEVELS[l].name,LEVELS[l].desc);
   nav.innerHTML = html;
   markActive('levels', filter);
 }
