@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f766e">
+<title>Explorador comparativo · Tema 4</title>
+<style>
+  :root{
+    --teal:#0f766e; --teal-d:#0b5a54; --teal-l:#e8f4f2; --gold:#c9a227; --gold-d:#a8871a;
+    --cream:#f7f5ef; --card:#fff; --ink:#1f2937; --muted:#6b7280; --line:#e5e1d6;
+    --good:#15803d; --bad:#b45309; --shadow:0 6px 22px rgba(15,118,110,.10);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,#f2efe6,#f7f5ef 200px);color:var(--ink);margin:0;padding:0 12px 60px;max-width:1000px;margin:0 auto}
+  header{padding:18px 4px 4px}
+  h1{font-size:1.24rem;margin:0 0 3px;color:var(--teal-d)}
+  .sub{color:var(--muted);font-size:.85rem;margin:0}
+  .search{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem;margin:12px 0 8px;background:#fff}
+  .filters{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .chip{white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--teal-d);padding:7px 12px;border-radius:999px;font-size:.8rem;font-weight:600;cursor:pointer}
+  .chip.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+  /* selection bar */
+  .selbar{position:sticky;top:0;z-index:5;background:rgba(247,245,239,.96);backdrop-filter:blur(6px);
+    padding:10px 0;margin:6px 0;border-bottom:1px solid var(--line)}
+  .selrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .seltag{background:var(--gold);color:#3a2f05;border-radius:999px;padding:4px 10px;font-size:.78rem;font-weight:600;display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+  .seltag b{cursor:pointer}
+  .selhint{color:var(--muted);font-size:.82rem}
+  .btn{border:none;border-radius:10px;padding:7px 12px;font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;border:1px solid var(--line);color:var(--teal-d)}
+  /* item grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+  .item{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;font-size:.86rem;line-height:1.3;position:relative;transition:.12s}
+  .item:active{transform:scale(.98)}
+  .item.sel{border-color:var(--teal);background:var(--teal-l);box-shadow:0 0 0 2px rgba(15,118,110,.15)}
+  .item .k{font-weight:600;color:var(--ink)}
+  .item .badge{display:inline-block;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+    padding:2px 6px;border-radius:6px;margin-top:5px}
+  .b-autor{background:#e8f4f2;color:var(--teal-d)}
+  .b-corriente{background:#fbf1d6;color:var(--gold-d)}
+  .b-teoria{background:#eee7f6;color:#6d4aa8}
+  .item.sel::after{content:"✓";position:absolute;top:8px;right:10px;color:var(--teal);font-weight:800}
+  /* output */
+  #out{margin-top:16px}
+  .detail{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px 18px 8px}
+  .detail h2{margin:0 0 2px;color:var(--teal-d);font-size:1.15rem}
+  .resumen-p{margin:12px 0 6px;font-size:.98rem;line-height:1.55;color:#22322f;background:#f3faf8;border-left:3px solid var(--teal);border-radius:0 10px 10px 0;padding:12px 14px}
+  .sumrow .resumen-p{margin:0}
+  .drow{display:flex;gap:10px;padding:9px 0;border-top:1px solid #f0ece1}
+  .drow .lbl{flex:0 0 132px;color:var(--gold-d);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.4px}
+  .drow .val{flex:1;font-size:.95rem}
+  .analysis{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px 18px;margin-bottom:14px}
+  .analysis h3{margin:0 0 8px;font-size:1rem;color:var(--teal-d)}
+  .aline{font-size:.9rem;margin:5px 0;padding-left:22px;position:relative}
+  .aline.c::before{content:"🟢";position:absolute;left:0}
+  .aline.d::before{content:"🔺";position:absolute;left:0}
+  .aempty{color:var(--muted);font-size:.86rem}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);background:#fff}
+  table{border-collapse:collapse;width:100%;min-width:520px}
+  th,td{text-align:left;vertical-align:top;padding:11px 12px;border-bottom:1px solid #f0ece1;font-size:.9rem}
+  thead th{background:var(--teal);color:#fff;position:sticky;top:0}
+  thead th:first-child{background:var(--teal-d)}
+  tbody th{background:#faf8f2;color:var(--gold-d);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+  td{color:#374151}
+  tbody tr.sumrow td{background:#eef7f5;color:#12332f;font-weight:600}
+  tbody tr.sumrow th{background:#dcefeb;color:var(--teal-d)}
+  .hint{background:#fff;border:1px dashed var(--line);border-radius:16px;padding:26px 20px;text-align:center;color:var(--muted)}
+  .hint b{color:var(--teal-d)}
+</style>
+</head>
+<body>
+<header>
+  <h1>🔎 Explorador comparativo · Tema 4</h1>
+  <p class="sub">Selecciona 1 ítem para ver su ficha, o 2+ para compararlos (coincidencias y diferencias).</p>
+  <input class="search" id="search" placeholder="Buscar autor, corriente, teoría o concepto…" oninput="renderGrid()">
+  <div class="filters" id="filters"></div>
+</header>
+
+<div class="selbar">
+  <div class="selrow" id="selrow"><span class="selhint">Nada seleccionado todavía — toca los ítems de abajo.</span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+<div id="out"></div>
+
+<script>
+/* =====================================================================
+   DATOS · Tema 4 (autores, corrientes, teorías y conceptos)
+   Campos: n=nombre, tipo, ep=época/fecha, corr=corriente, res=en una frase,
+   ap=aportación/idea, val=teoría del valor, riq=origen de la riqueza,
+   est=papel del Estado/mercado, say=ley de Say, obra, cita, rel=relación,
+   ej=ejemplo actual, lim=límite. g*=etiquetas para el análisis automático.
+   ===================================================================== */
+const ITEMS = [
+/* ---------- AUTORES ---------- */
+{n:"Aristóteles",tipo:"autor",ep:"Antigua Grecia (s. V–IV a.C.)",corr:"Orígenes / Antigüedad",res:"Filósofo griego que separó administrar el hogar de acumular riqueza.",ap:"Acuñó la 'crematística' (riqueza como fin en sí, contraria a la naturaleza) frente a la 'oikonomía'; condenó la usura.",rel:"Inspira a Santo Tomás de Aquino.",gCorr:"Antigüedad",gSig:"s. V a.C."},
+{n:"Santo Tomás de Aquino",tipo:"autor",ep:"Edad Media (s. XI–XV)",corr:"Escolástica",res:"Teólogo medieval que aplica la moral a la economía.",ap:"Defiende el 'precio justo' y que no haya lucro excesivo; condena la usura.",rel:"Retoma las ideas de Aristóteles.",gCorr:"Escolástica",gSig:"Edad Media"},
+{n:"Jean Baptiste Colbert",tipo:"autor",ep:"Mercantilismo (s. XVI–XVIII)",corr:"Mercantilismo",res:"Ministro de finanzas francés, exponente mercantilista.",ap:"Defiende las manufacturas nacionales y el sector público.",cita:"«Desplumar el ganso… con el menor número de graznidos».",est:"Proteccionista / poder centralizado",riq:"Oro y plata (comercio)",ej:"Aranceles de Trump.",gCorr:"Mercantilismo",gRiq:"Metales/comercio",gEst:"Proteccionista",gSig:"s. XVI–XVIII"},
+{n:"Jerónimo de Uztáriz",tipo:"autor",ep:"Mercantilismo (s. XVI–XVIII)",corr:"Mercantilismo",res:"Mercantilista español.",ap:"Comercio con las Indias para España y proteccionismo, pero con postura algo menos intervencionista (más iniciativa privada).",est:"Proteccionista (algo más flexible)",riq:"Oro y plata (comercio)",gCorr:"Mercantilismo",gRiq:"Metales/comercio",gEst:"Proteccionista",gSig:"s. XVI–XVIII"},
+{n:"François Quesnay",tipo:"autor",ep:"Fisiocracia (s. XVIII)",corr:"Fisiocracia",res:"Fisiócrata; representó la circulación económica.",ap:"Publicó el 'Tableau Économique' (1758), precursor del flujo circular de la renta (sin el Estado).",obra:"«Tableau Économique» (1758)",riq:"Naturaleza (agricultura)",est:"Liberal (laissez faire)",gCorr:"Fisiocracia",gRiq:"Naturaleza/agricultura",gEst:"Mínimo/liberal",gSig:"s. XVIII"},
+{n:"Anne Robert Turgot",tipo:"autor",ep:"Fisiocracia (s. XVIII)",corr:"Fisiocracia",res:"Fisiócrata; formuló los rendimientos decrecientes.",ap:"Ley de rendimientos decrecientes aplicada a la agricultura (1767).",cita:"«La fertilidad de la tierra es como un muelle…».",riq:"Naturaleza (agricultura)",est:"Liberal (laissez faire)",gCorr:"Fisiocracia",gRiq:"Naturaleza/agricultura",gEst:"Mínimo/liberal",gSig:"s. XVIII"},
+{n:"Adam Smith",tipo:"autor",ep:"Economía clásica (1776)",corr:"Clásica inglesa",res:"Padre de la economía clásica y de la economía como ciencia.",ap:"Mano invisible; valor-trabajo; división del trabajo; acumulación de capital; ventaja absoluta.",obra:"«La riqueza de las naciones» (1776)",cita:"«No es de la benevolencia del carnicero o del panadero…».",val:"Trabajo (valor-trabajo)",riq:"Trabajo / producción",est:"Mínimo (liberal)",say:"A favor",rel:"Base de todos los clásicos; le sigue Ricardo.",lim:"Exceso de confianza en el equilibrio automático.",gCorr:"Clásica inglesa",gVal:"Trabajo",gRiq:"Trabajo/producción",gEst:"Mínimo/liberal",gSay:"A favor",gSig:"s. XVIII"},
+{n:"David Ricardo",tipo:"autor",ep:"Economía clásica (s. XIX)",corr:"Clásica inglesa",res:"Gran desarrollador de las ideas clásicas.",ap:"Ventaja comparativa; estado estacionario; acumulación de capital; método abstracto.",val:"Trabajo (valor-trabajo)",riq:"Trabajo / producción",est:"Mínimo (liberal)",say:"A favor",rel:"Influye en Marx (acumulación de capital y valor-trabajo).",gCorr:"Clásica inglesa",gVal:"Trabajo",gRiq:"Trabajo/producción",gEst:"Mínimo/liberal",gSay:"A favor",gSig:"s. XIX"},
+{n:"Thomas Robert Malthus",tipo:"autor",ep:"Economía clásica (s. XIX)",corr:"Clásica inglesa",res:"Clásico; teoría de la población.",ap:"Rendimientos decrecientes aplicados a la población: crece más que los alimentos → guerras/epidemias.",say:"En contra",rel:"Única excepción clásica a la ley de Say.",lim:"No se cumplió en humanos (tecnología, natalidad); sí en Biología.",gCorr:"Clásica inglesa",gVal:"Trabajo",gEst:"Mínimo/liberal",gSay:"En contra",gSig:"s. XIX"},
+{n:"John Stuart Mill",tipo:"autor",ep:"Economía clásica (s. XIX)",corr:"Clásica inglesa",res:"Gran sintetizador de los clásicos.",ap:"Sintetiza las ideas clásicas; ejemplo del faro (bienes públicos); adelantado (esclavitud, salarios bajos).",say:"A favor",rel:"Su ejemplo del faro lo popularizó Samuelson.",gCorr:"Clásica inglesa",gVal:"Trabajo",gEst:"Mínimo/liberal",gSay:"A favor",gSig:"s. XIX"},
+{n:"Jean Baptiste Say",tipo:"autor",ep:"Economía clásica (s. XIX)",corr:"Clásica francesa",res:"Clásico francés; autor de la ley de Say.",ap:"«La oferta crea su propia demanda»; teoría del valor por utilidad.",val:"Utilidad",say:"A favor (autor de la ley)",rel:"Su idea de utilidad anticipa a los neoclásicos.",gCorr:"Clásica francesa",gVal:"Utilidad",gEst:"Mínimo/liberal",gSay:"A favor",gSig:"s. XIX"},
+{n:"Charles Dunoyer",tipo:"autor",ep:"Economía clásica (s. XIX)",corr:"Clásica francesa",res:"Clásico francés, ultraliberal.",ap:"Libertad económica casi hasta la 'anarquía económica'; el Estado solo se ocupa del orden jurídico.",est:"Mínimo (casi anarquía)",gCorr:"Clásica francesa",gEst:"Mínimo/liberal",gSig:"s. XIX"},
+{n:"Frédéric Bastiat",tipo:"autor",ep:"Economía clásica (s. XIX)",corr:"Clásica francesa",res:"Clásico francés, antiproteccionista.",ap:"Sátiras contra el proteccionismo (recae sobre los consumidores).",obra:"«La petición de los fabricantes de velas»",est:"Mínimo (librecambio)",gCorr:"Clásica francesa",gEst:"Mínimo/liberal",gSig:"s. XIX"},
+{n:"Georg Friedrich List",tipo:"autor",ep:"Primeras críticas (ppios. s. XIX)",corr:"Primeras críticas",res:"Crítico alemán del librecambio clásico.",ap:"Librecambio interno pero proteccionismo temporal para la industria naciente.",est:"Proteccionista (temporal)",ej:"Ayudas de la UE a la industria de baterías.",rel:"Primeras críticas, antes de Marx.",gCorr:"Primeras críticas",gEst:"Proteccionista",gSig:"s. XIX"},
+{n:"J. C. L. de Sismondi",tipo:"autor",ep:"Primeras críticas (ppios. s. XIX)",corr:"Primeras críticas",res:"Crítico francés; superproducción.",ap:"Contra la ley de Say; advierte de la superproducción ('un sistema peligroso').",say:"En contra",gCorr:"Primeras críticas",gSay:"En contra",gSig:"s. XIX"},
+{n:"Karl Marx",tipo:"autor",ep:"Crítica marxista (s. XIX)",corr:"Marxismo",res:"La mayor crítica al pensamiento clásico.",ap:"Plusvalía y explotación; lucha de clases; materialismo dialéctico; ejército industrial de parados.",obra:"«El capital»; «El manifiesto comunista» (con Engels)",val:"Trabajo (→ plusvalía)",riq:"Trabajo / producción",est:"Redistribución / colapso del capitalismo",say:"En contra",rel:"Parte de Ricardo; escribe con Engels.",ej:"Automatización e IA (capital-trabajo).",lim:"Su pronóstico de colapso no se cumplió (economía mixta).",gCorr:"Marxismo",gVal:"Trabajo",gRiq:"Trabajo/producción",gEst:"Redistribución",gSay:"En contra",gSig:"s. XIX"},
+{n:"Friedrich Engels",tipo:"autor",ep:"Crítica marxista (s. XIX)",corr:"Marxismo",res:"Coautor del marxismo junto a Marx.",ap:"Coautor de «El manifiesto comunista».",obra:"«El manifiesto comunista» (con Marx)",gCorr:"Marxismo",gSig:"s. XIX"},
+{n:"Alfred Marshall",tipo:"autor",ep:"Neoclásica (finales s. XIX)",corr:"Neoclásica",res:"Máximo exponente neoclásico; maestro de Keynes.",ap:"«Tijeras marshallianas»: equilibrio por oferta (costes marginales crecientes) y demanda (utilidad marginal decreciente).",val:"Utilidad marginal",est:"Mercado (análisis matemático)",rel:"Profesor de Keynes en Cambridge.",gCorr:"Neoclásica",gVal:"Utilidad",gEst:"Mínimo/liberal",gSig:"s. XIX"},
+{n:"Léon Walras",tipo:"autor",ep:"Neoclásica (finales s. XIX)",corr:"Neoclásica",res:"Formalizó el equilibrio general.",ap:"Equilibrio general mediante ecuaciones simultáneas (mercados interdependientes).",val:"Utilidad marginal",gCorr:"Neoclásica",gVal:"Utilidad",gSig:"s. XIX"},
+{n:"Vilfredo Pareto",tipo:"autor",ep:"Neoclásica (1906)",corr:"Neoclásica",res:"Neoclásico; óptimo de Pareto.",ap:"Aplicó el marginalismo al equilibrio general; curvas de indiferencia y óptimo de Pareto.",val:"Utilidad marginal",rel:"Dibuja (1906) las curvas de indiferencia creadas por Edgeworth.",gCorr:"Neoclásica",gVal:"Utilidad",gSig:"s. XIX–XX"},
+{n:"F. Edgeworth",tipo:"autor",ep:"Neoclásica (1881)",corr:"Neoclásica",res:"Neoclásico.",ap:"Crea el concepto de curva de indiferencia (1881).",gCorr:"Neoclásica",gVal:"Utilidad",gSig:"s. XIX"},
+{n:"Hicks y Allen",tipo:"autor",ep:"Neoclásica (s. XX)",corr:"Neoclásica",res:"Neoclásicos posteriores.",ap:"Popularizan las curvas de indiferencia.",gCorr:"Neoclásica",gVal:"Utilidad",gSig:"s. XX"},
+{n:"John Maynard Keynes",tipo:"autor",ep:"Frontera (a partir de 1929)",corr:"Keynesianismo (tema siguiente)",res:"Marca el fin del predominio neoclásico.",ap:"Rompe con la ley de Say (preferencia por el ahorro); protagonista del tema siguiente.",say:"En contra",rel:"Alumno de Marshall; su irrupción sigue a la Gran Depresión de 1929.",gSay:"En contra",gSig:"s. XX"},
+{n:"Samuelson y Nordhaus",tipo:"autor",ep:"Referencia (s. XX)",corr:"Autores-fuente",res:"Autores del manual de referencia moderno.",ap:"Definición de economía (recursos escasos / necesidades ilimitadas); Samuelson popularizó el faro de Mill.",gSig:"s. XX"},
+{n:"J. K. Galbraith",tipo:"autor",ep:"Referencia (s. XX)",corr:"Autores-fuente",res:"Autor-fuente del tema.",ap:"«Historia de la economía»: distingue periodo pre-científico y científico.",obra:"«Historia de la economía»",gSig:"s. XX"},
+{n:"Harry Landreth",tipo:"autor",ep:"Referencia",corr:"Autores-fuente",res:"Autor-fuente del tema.",ap:"«Historia del pensamiento económico»: las ideas clásicas para entender la sociedad actual.",obra:"«Historia del pensamiento económico»"},
+{n:"Nordstrom y Ridderstrale",tipo:"autor",ep:"2012",corr:"Autores-fuente",res:"Autores de un ejemplo de actualidad.",ap:"«Funky business forever» (2012): el 90% de los países usan el mercado (vigencia clásica).",obra:"«Funky business forever» (2012)",gSig:"s. XXI"},
+{n:"Card, Angrist e Imbens",tipo:"autor",ep:"Nobel 2021",corr:"Herencia neoclásica",res:"Premio Nobel de Economía 2021.",ap:"Contribuciones al análisis del mercado laboral (herencia econométrica neoclásica).",gSig:"s. XXI"},
+
+/* ---------- CORRIENTES ---------- */
+{n:"Escolástica",tipo:"corriente",ep:"Edad Media (s. XI–XV)",res:"Movimiento medieval que aplica la moral a la economía.",ap:"Precio justo y reparto equitativo de la riqueza.",ej:"Salario mínimo, comercio justo.",rel:"Santo Tomás de Aquino.",gCorr:"Escolástica",gSig:"Edad Media"},
+{n:"Escuela de Salamanca",tipo:"corriente",ep:"Renacimiento (s. XVI)",res:"Pensadores del s. XVI.",ap:"Relacionan la masa monetaria (plata de América) con los precios: anticipan la teoría cuantitativa del dinero.",gSig:"s. XVI"},
+{n:"Mercantilismo",tipo:"corriente",ep:"s. XVI–XVIII",res:"Busca la riqueza en los metales preciosos.",ap:"Riqueza = oro/plata (constante); aumentar exportaciones; proteccionismo; poder centralizado.",riq:"Metales / comercio",est:"Proteccionista",rel:"Autores: Colbert y Uztáriz.",ej:"Aranceles de Trump.",lim:"Erró al identificar riqueza con metales.",gCorr:"Mercantilismo",gRiq:"Metales/comercio",gEst:"Proteccionista",gSig:"s. XVI–XVIII"},
+{n:"Fisiocracia",tipo:"corriente",ep:"s. XVIII",res:"La riqueza nace de la naturaleza.",ap:"Solo el sector primario genera excedente; acuñan el 'laissez faire'.",riq:"Naturaleza / agricultura",est:"Liberal (laissez faire)",rel:"Autores: Quesnay y Turgot.",ej:"Energías renovables.",lim:"Solo la agricultura genera producto neto (ignora industria/comercio).",gCorr:"Fisiocracia",gRiq:"Naturaleza/agricultura",gEst:"Mínimo/liberal",gSig:"s. XVIII"},
+{n:"Economía clásica inglesa",tipo:"corriente",ep:"s. XVIII–XIX",res:"Nace la economía como ciencia; mercado y valor-trabajo.",ap:"Mano invisible, valor-trabajo, división del trabajo, ventajas comerciales.",val:"Trabajo",riq:"Trabajo / producción",est:"Mínimo (liberal)",say:"A favor",rel:"Smith, Ricardo, Malthus, Mill.",lim:"Exceso de fe en el equilibrio automático.",gCorr:"Clásica inglesa",gVal:"Trabajo",gRiq:"Trabajo/producción",gEst:"Mínimo/liberal",gSay:"A favor",gSig:"s. XVIII–XIX"},
+{n:"Economía clásica francesa",tipo:"corriente",ep:"s. XIX",res:"Rama francesa de los clásicos.",ap:"Ley de Say; valor-utilidad; ultraliberalismo; antiproteccionismo.",val:"Utilidad",est:"Mínimo (liberal)",say:"A favor",rel:"Say, Dunoyer, Bastiat.",gCorr:"Clásica francesa",gVal:"Utilidad",gEst:"Mínimo/liberal",gSay:"A favor",gSig:"s. XIX"},
+{n:"Primeras críticas",tipo:"corriente",ep:"principios s. XIX",res:"Primeros críticos del pensamiento clásico, antes de Marx.",ap:"List (proteccionismo a la industria naciente) y Sismondi (superproducción, contra la ley de Say).",gCorr:"Primeras críticas",gSig:"s. XIX"},
+{n:"Crítica marxista",tipo:"corriente",ep:"s. XIX",res:"La mayor oposición al pensamiento clásico.",ap:"Plusvalía, lucha de clases, colapso del capitalismo.",val:"Trabajo",est:"Redistribución",say:"En contra",rel:"Karl Marx (con Engels).",ej:"Automatización/IA; Estado del bienestar.",lim:"El colapso no se cumplió (economía mixta).",gCorr:"Marxismo",gVal:"Trabajo",gEst:"Redistribución",gSay:"En contra",gSig:"s. XIX"},
+{n:"Economía neoclásica",tipo:"corriente",ep:"finales s. XIX",res:"Introduce las matemáticas y la utilidad marginal.",ap:"El valor también por la demanda (utilidad marginal); modelos matemáticos; mercado asignador.",val:"Utilidad marginal",est:"Mercado",rel:"Marshall, Walras, Pareto (Edgeworth, Hicks y Allen).",ej:"Uber (precios en tiempo real).",lim:"Supone racionalidad perfecta (cuestionada por la economía conductual).",gCorr:"Neoclásica",gVal:"Utilidad",gEst:"Mínimo/liberal",gSig:"s. XIX"},
+{n:"Economía mixta / Estado del bienestar",tipo:"corriente",ep:"s. XX–actualidad",res:"Síntesis de mercado y Estado.",ap:"El capitalismo absorbe las tensiones capital-trabajo con redistribución (impuestos, sanidad, educación).",est:"Mixto (mercado + redistribución)",rel:"Fruto de la tensión clásicos ↔ Marx.",gSig:"s. XX"},
+
+/* ---------- TEORÍAS Y CONCEPTOS ---------- */
+{n:"Crematística",tipo:"teoria",res:"Acumular riqueza como fin en sí mismo.",ap:"Aristóteles la opone a la 'oikonomía' y la considera contraria a la naturaleza.",rel:"Aristóteles.",gCorr:"Antigüedad"},
+{n:"Precio justo",tipo:"teoria",res:"Precio moralmente correcto, sin lucro excesivo.",ap:"Idea escolástica del reparto equitativo.",rel:"Santo Tomás / escolástica.",ej:"Salario mínimo, comercio justo.",gCorr:"Escolástica"},
+{n:"Teoría cuantitativa del dinero",tipo:"teoria",res:"Más dinero en circulación → más inflación.",ap:"Relaciona la liquidez con los precios.",rel:"Anticipada por la Escuela de Salamanca (plata de América).",gSig:"s. XVI"},
+{n:"Proteccionismo",tipo:"teoria",res:"Limitar importaciones para favorecer lo nacional.",ap:"Aranceles y cupos frente al exterior.",est:"Proteccionista",rel:"Mercantilismo y List.",ej:"Aranceles de Trump; industria de la UE.",gEst:"Proteccionista"},
+{n:"Laissez faire",tipo:"teoria",res:"«Dejen hacer, dejen pasar»: libertad económica.",ap:"Base del liberalismo clásico.",est:"Mínimo / liberal",rel:"Acuñado por los fisiócratas.",gCorr:"Fisiocracia",gEst:"Mínimo/liberal"},
+{n:"Flujo circular de la renta (Tableau)",tipo:"teoria",res:"Esquema de circulación de bienes y dinero.",ap:"Precursor del flujo circular actual (sin el Estado).",rel:"Quesnay, «Tableau Économique» (1758).",gCorr:"Fisiocracia"},
+{n:"Ley de rendimientos decrecientes",tipo:"teoria",res:"Cada unidad extra de un factor aporta cada vez menos.",ap:"Se aplica a la agricultura, la producción y la población.",rel:"Turgot (agricultura, 1767); Ricardo (estado estacionario); Malthus (población).",gSig:"s. XVIII–XIX"},
+{n:"Mano invisible",tipo:"teoria",res:"El interés individual produce, vía mercado, beneficio colectivo.",ap:"Coordinación sin planificación central.",est:"Mínimo / liberal",rel:"Adam Smith.",gCorr:"Clásica inglesa",gEst:"Mínimo/liberal"},
+{n:"Teoría del valor-trabajo",tipo:"teoria",res:"El valor lo da la cantidad de trabajo incorporado.",ap:"El precio (oferta/demanda) es distinto del valor.",val:"Trabajo",rel:"Smith, Ricardo y Marx.",gVal:"Trabajo"},
+{n:"División del trabajo",tipo:"teoria",res:"Especialización que aumenta la destreza y ahorra tiempo.",ap:"Motor de la productividad.",rel:"Smith (positiva); Marx (sustitución por máquinas → paro).",gCorr:"Clásica inglesa"},
+{n:"Ventaja absoluta",tipo:"teoria",res:"Especializarse donde se produce con más eficiencia que otros.",ap:"Fundamento del comercio en Smith.",rel:"Adam Smith.",gCorr:"Clásica inglesa"},
+{n:"Ventaja comparativa",tipo:"teoria",res:"Especializarse donde la desventaja es menor, aunque se sea peor en todo.",ap:"Base moderna del comercio internacional.",rel:"David Ricardo.",ej:"Globalización.",gCorr:"Clásica inglesa"},
+{n:"Estado estacionario",tipo:"teoria",res:"A largo plazo la producción deja de crecer.",ap:"Consecuencia de los rendimientos decrecientes.",rel:"David Ricardo.",gCorr:"Clásica inglesa"},
+{n:"Ley de Say",tipo:"teoria",res:"«La oferta crea su propia demanda».",ap:"No hay crisis por falta de demanda; se tiende al pleno empleo.",say:"—",rel:"Say; rechazada por Malthus, Sismondi, Marx y Keynes.",gCorr:"Clásica francesa"},
+{n:"Teoría del valor-utilidad",tipo:"teoria",res:"El valor lo da la utilidad del bien, no el trabajo.",ap:"Anticipa la utilidad marginal.",val:"Utilidad",rel:"Jean Baptiste Say.",gVal:"Utilidad"},
+{n:"Plusvalía",tipo:"teoria",res:"Valor que crea el trabajador por encima de su salario.",ap:"Es apropiada por el empresario: base de la explotación.",val:"Trabajo",rel:"Marx; da lugar a la lucha de clases.",gCorr:"Marxismo",gVal:"Trabajo"},
+{n:"Materialismo dialéctico",tipo:"teoria",res:"Explicar los cambios sociales con leyes objetivas.",ap:"'Socialismo científico' frente al utópico; producción/distribución determinan el orden social.",rel:"Karl Marx.",gCorr:"Marxismo"},
+{n:"Lucha de clases",tipo:"teoria",res:"Conflicto de intereses entre capital y trabajo.",ap:"Deriva de la apropiación de la plusvalía.",rel:"Karl Marx.",gCorr:"Marxismo"},
+{n:"Ejército industrial de parados",tipo:"teoria",res:"Desempleados por la mecanización que no pueden consumir.",ap:"Motor del colapso capitalista según Marx.",rel:"Karl Marx.",ej:"Automatización e IA.",gCorr:"Marxismo"},
+{n:"Utilidad marginal / marginalismo",tipo:"teoria",res:"Utilidad de la última unidad consumida (decreciente).",ap:"Explica el valor por la demanda; puede llegar a 0 (utilidad total máxima).",val:"Utilidad marginal",rel:"Escuela neoclásica.",gCorr:"Neoclásica",gVal:"Utilidad"},
+{n:"Paradoja del valor (agua-diamante)",tipo:"teoria",res:"El agua (útil) es barata y los diamantes (superfluos) caros.",ap:"Se resuelve con la utilidad marginal (escasez).",rel:"Planteada por Smith; resuelta por los neoclásicos.",gCorr:"Neoclásica"},
+{n:"Tijeras marshallianas",tipo:"teoria",res:"Equilibrio por oferta y demanda.",ap:"Oferta: costes marginales crecientes. Demanda: utilidad marginal decreciente.",rel:"Alfred Marshall.",gCorr:"Neoclásica"},
+{n:"Equilibrio general",tipo:"teoria",res:"Todos los mercados se equilibran a la vez.",ap:"Interdependencia mediante ecuaciones simultáneas.",rel:"Léon Walras.",gCorr:"Neoclásica"},
+{n:"Curvas de indiferencia",tipo:"teoria",res:"Combinaciones de bienes con idéntica satisfacción.",ap:"Herramienta del análisis del consumidor.",rel:"Edgeworth (crea, 1881), Pareto (dibuja, 1906), Hicks y Allen (popularizan).",gCorr:"Neoclásica"},
+{n:"Óptimo de Pareto",tipo:"teoria",res:"No se puede mejorar a alguien sin empeorar a otro.",ap:"Criterio de eficiencia.",rel:"Vilfredo Pareto.",gCorr:"Neoclásica"},
+{n:"Bienes públicos (el faro)",tipo:"teoria",res:"Bienes de los que es difícil excluir a nadie.",ap:"Ejemplo del faro.",rel:"Mill; popularizado por Samuelson.",gCorr:"Clásica inglesa"},
+{n:"Periodo pre-científico vs científico",tipo:"teoria",res:"Antes de Smith la economía va unida a la filosofía; con él es ciencia.",ap:"El periodo científico empieza en el s. XVIII con Adam Smith.",rel:"Distinción de Galbraith.",gSig:"s. XVIII"}
+];
+
+/* ===================================================================
+   PÁRRAFOS-RESUMEN (uno por ítem, para repaso rápido). Clave = nombre.
+   =================================================================== */
+const PARRAFOS = {
+"Aristóteles":`Filósofo de la Antigua Grecia (s. V–IV a.C.) y una de las primeras reflexiones económicas de la historia. Distinguió la "oikonomía" —administración del hogar orientada al bienestar— de la "crematística", la acumulación de riqueza como fin en sí mismo, que consideraba contraria a la naturaleza. Además condenó la usura (el cobro de intereses), idea que retomaría siglos después Santo Tomás de Aquino.`,
+"Santo Tomás de Aquino":`Máximo referente económico de la escolástica medieval, que aplicó la moral y la teología al análisis económico. Reflexionó sobre la moralidad de los precios, defendiendo el "precio justo" y que los comerciantes no se lucraran excesivamente, y condenó la usura conectando con las ideas de Aristóteles. Su preocupación por el reparto equitativo de la riqueza sigue viva hoy en debates como el salario mínimo o el comercio justo.`,
+"Jean Baptiste Colbert":`Ministro de finanzas francés y uno de los grandes exponentes del mercantilismo (s. XVI–XVIII). Defendió el fomento de las manufacturas nacionales y el aumento del sector público, dentro de una lógica proteccionista y de poder económico centralizado. Es célebre por su cita sobre el arte de la tributación: "desplumar el ganso para obtener la mayor cantidad de plumas con el menor número de graznidos".`,
+"Jerónimo de Uztáriz":`Representante español del mercantilismo. Era partidario de reservar el comercio con las Indias para el Estado español y de seguir los modelos arancelarios proteccionistas de Francia, Inglaterra y Holanda para proteger la industria nacional. No obstante, defendió una mayor iniciativa privada en determinadas manufacturas, anticipando una postura algo menos intervencionista que la mercantilista clásica.`,
+"François Quesnay":`Uno de los grandes exponentes de la fisiocracia (s. XVIII). Con su "Tableau Économique" (1758) realizó uno de los primeros esquemas circulatorios de la economía, muy parecido al actual flujo circular de la renta, aunque sin incluir al Estado. Como fisiócrata, situaba el origen de la riqueza en la naturaleza y defendía el "laissez faire" frente al proteccionismo mercantilista.`,
+"Anne Robert Turgot":`Fisiócrata (s. XVIII) que aportó la ley de los rendimientos decrecientes, formulada y aplicada por primera vez a la producción agrícola en 1767. La ilustró con la imagen del muelle: "la fertilidad de la tierra es como un muelle cuando se comprime… el efecto de las sucesivas cargas disminuye gradualmente". Como los fisiócratas, defendía la libertad económica y situaba la riqueza en la capacidad productiva de la naturaleza.`,
+"Adam Smith":`Considerado el padre de la economía clásica y de la economía como ciencia independiente, que nace en 1776 con su obra "La riqueza de las naciones". Postuló la "mano invisible": cada individuo, buscando su interés, es guiado por el mercado y contribuye al beneficio colectivo, por lo que defendía un Estado mínimo que protegiera la propiedad privada. Entre sus aportaciones destacan la teoría del valor-trabajo, la división del trabajo, la acumulación de capital y la ventaja absoluta; su límite fue el exceso de confianza en el equilibrio automático del mercado.`,
+"David Ricardo":`Gran desarrollador de las ideas clásicas (s. XIX), que empleó el método abstracto en economía. Revolucionó la teoría del comercio internacional con la ventaja comparativa: un país debe especializarse donde tenga menor desventaja, aunque sea peor en todo. Aplicó los rendimientos decrecientes para anunciar un "estado estacionario" a largo plazo, y su teoría de la acumulación de capital influiría decisivamente en Marx.`,
+"Thomas Robert Malthus":`Economista clásico inglés (s. XIX) conocido por aplicar la ley de rendimientos decrecientes a la población. Según él, la población crece más deprisa que la producción de alimentos, por lo que llegaría un momento sin alimentos para todos, con guerras o epidemias que ajustarían la población. Su pronóstico no se cumplió en el ser humano gracias a la tecnología y a la caída de la natalidad, aunque se acepta en la biología de poblaciones; además, fue el único clásico que no aceptó la ley de Say.`,
+"John Stuart Mill":`Economista clásico inglés (s. XIX) descrito como un gran sintetizador de las ideas clásicas y un adelantado a su tiempo en temas como la esclavitud y el problema de los salarios bajos. Creó el famoso ejemplo del "faro" para ilustrar los bienes públicos, que después popularizaría Paul Samuelson y que aparece en todos los manuales de macroeconomía.`,
+"Jean Baptiste Say":`Máximo exponente de la escuela clásica francesa (s. XIX). Es el autor de la "ley de Say", según la cual la oferta crea su propia demanda, de modo que no puede haber crisis por falta de demanda y se tiende al pleno empleo; fue aceptada por casi todos los clásicos hasta Keynes. En su teoría del valor sostuvo que el valor de los bienes no lo mide el trabajo, sino la utilidad que aportan al individuo, anticipando a los neoclásicos.`,
+"Charles Dunoyer":`Economista de la escuela clásica francesa (s. XIX) que profundizó en la libertad económica como sistema, llegando casi al concepto de "anarquía económica". Según él, el Estado tan solo debería ocuparse de garantizar el orden jurídico (civil y penal), pero no del ámbito mercantil.`,
+"Frédéric Bastiat":`Economista de la escuela clásica francesa (s. XIX) y firme opositor al proteccionismo, porque las medidas proteccionistas recaen en última instancia sobre los consumidores nacionales. Es ampliamente reconocido por sus sátiras, como "La petición de los fabricantes de velas", en la que estos piden al gobierno protección frente a un competidor desleal: el sol.`,
+"Georg Friedrich List":`Economista alemán (principios del s. XIX) encuadrado en las primeras críticas al pensamiento clásico. Defendía el liberalismo económico entre los Estados alemanes, pero el proteccionismo frente al exterior: el arancel debía usarse como medida temporal para proteger a la industria naciente hasta que pudiera competir en igualdad. Sus ideas encuentran hoy reflejo en las ayudas públicas de la UE para desarrollar una industria propia de baterías.`,
+"J. C. L. de Sismondi":`Economista francés (principios del s. XIX) y una de las primeras críticas al pensamiento clásico. Estaba en contra de la ley de Say y advertía que la industria moderna se encaminaba hacia la superproducción, declarando que "la competencia universal, o el esfuerzo de producir siempre más y a menor precio, ha sido un sistema peligroso".`,
+"Karl Marx":`Representa la mayor crítica al pensamiento clásico (s. XIX); sus obras principales son "El capital" y "El manifiesto comunista" (esta última junto a Engels). Desde el materialismo dialéctico o "socialismo científico" explica los cambios sociales por la forma en que se satisfacen las necesidades, y con la teoría del valor-trabajo desarrolla la plusvalía —el valor que el empresario se apropia del trabajador— como base de la explotación y de la lucha de clases. Pronosticó el colapso del capitalismo por la creciente explotación y el "ejército industrial de parados", pero no se cumplió: el sistema lo absorbió con mecanismos redistributivos, dando lugar a la economía mixta.`,
+"Friedrich Engels":`Pensador vinculado a Karl Marx, con quien es coautor de "El manifiesto comunista". Su figura aparece en el tema unida al nacimiento del marxismo y a la formulación del socialismo científico junto a Marx.`,
+"Alfred Marshall":`Máximo exponente de la escuela neoclásica (finales del s. XIX), profesor en la Universidad de Cambridge y maestro de J. M. Keynes. Sistematizó el modelo de oferta y demanda conocido como las "tijeras marshallianas", en el que el equilibrio se forma con una demanda regida por la utilidad marginal decreciente y una oferta con costes marginales crecientes.`,
+"Léon Walras":`Economista neoclásico (finales del s. XIX) que formalizó matemáticamente el equilibrio general. Mediante un sistema de ecuaciones simultáneas demostró que todos los mercados de una economía pueden alcanzar el equilibrio de forma interdependiente, reforzando el uso de las matemáticas en la economía.`,
+"Vilfredo Pareto":`Economista neoclásico que aplicó el marginalismo al equilibrio general de Walras. Aportó dos grandes conceptos: las curvas de indiferencia (combinaciones de bienes con idéntica satisfacción), que dibujó en 1906, y el "óptimo de Pareto", el punto de equilibrio en el que ningún agente puede mejorar su situación sin reducir el bienestar de otro.`,
+"F. Edgeworth":`Economista neoclásico al que se atribuye la creación del concepto de curva de indiferencia en 1881. El concepto sería después dibujado por Pareto (1906) y popularizado por Hicks y Allen.`,
+"Hicks y Allen":`Economistas neoclásicos posteriores a los que el tema atribuye la popularización de las curvas de indiferencia, el concepto creado por Edgeworth y dibujado por Pareto.`,
+"John Maynard Keynes":`Aparece como frontera del tema: con la Gran Depresión de 1929 termina el predominio de las ideas neoclásicas y se abre una nueva etapa keynesiana, objeto del tema siguiente. Fue alumno de Marshall y rompió con la ley de Say a partir de sus ideas sobre la preferencia por el ahorro.`,
+"Samuelson y Nordhaus":`Autores del manual de referencia moderno del que procede la definición de economía usada en el tema: la ciencia que estudia cómo administrar recursos escasos para satisfacer necesidades ilimitadas. Samuelson, además, popularizó el ejemplo del faro de John Stuart Mill.`,
+"J. K. Galbraith":`Autor de referencia del tema con su obra "Historia de la economía", en la que se apoya la periodización del pensamiento económico en dos etapas: un periodo pre-científico (hasta mitad del s. XVIII, con la economía unida a la filosofía) y un periodo científico que empieza con Adam Smith.`,
+"Harry Landreth":`Autor de referencia con su obra "Historia del pensamiento económico", citada para subrayar que las ideas clásicas son fundamentales para entender la sociedad actual, dentro del contexto de la revolución industrial.`,
+"Nordstrom y Ridderstrale":`Autores del libro "Funky business forever" (2012), citado como ejemplo de la vigencia del pensamiento clásico: afirman que en la actualidad el 90% de los países basan en el mercado la asignación del precio de los bienes y servicios.`,
+"Card, Angrist e Imbens":`Galardonados con el Premio Nobel de Economía de 2021 por sus contribuciones al análisis del mercado laboral. Se citan como muestra de que la econometría —heredera del aparato matemático que introdujeron los neoclásicos— sigue plenamente vigente.`,
+"Escolástica":`Movimiento filosófico y teológico de la Edad Media que se preocupó por el "precio justo" de los bienes y por un reparto equitativo de la riqueza. Su gran referente fue Santo Tomás de Aquino, que defendió los precios justos y condenó la usura. Ecos de estas ideas se ven hoy en el comercio justo, el salario mínimo o las polémicas sobre las bonificaciones a directivos.`,
+"Escuela de Salamanca":`Grupo de pensadores del s. XVI (Renacimiento) que estudió la influencia del aumento de la masa monetaria —la plata llegada de América— sobre la subida de los precios. Al relacionar el exceso de liquidez con la inflación, anticiparon lo que después se conocería como teoría cuantitativa del dinero.`,
+"Mercantilismo":`Corriente de pensamiento de los s. XVI–XVIII que se aleja de la filosofía para centrarse en la búsqueda de la riqueza. Sostenía que la riqueza mundial es constante y se mide por la cantidad de oro y plata, por lo que un país solo la aumenta exportando más; de ahí su defensa del proteccionismo y de un poder económico centralizado. Sus principales exponentes fueron Colbert y Uztáriz, y aunque erró al identificar riqueza con metales preciosos, contribuyó a fortalecer los Estados modernos; hoy reaparece en las políticas arancelarias de Trump.`,
+"Fisiocracia":`Corriente del s. XVIII (su nombre significa "poder sobre la naturaleza") que surge como reacción al mercantilismo. Sitúa el origen de la riqueza en la naturaleza, considerando que solo el sector primario genera excedente, y acuña el "laissez faire", base del liberalismo clásico. Sus grandes exponentes fueron Quesnay y Turgot; su principal limitación fue considerar que únicamente la agricultura genera producto neto, ignorando el valor añadido de la industria y el comercio.`,
+"Economía clásica inglesa":`Rama principal de la economía clásica, surgida en Inglaterra a mitad del s. XVIII con Adam Smith, que convierte a la economía en ciencia independiente. Sitúa el valor en el trabajo (teoría del valor-trabajo) y confía en el mercado y en un Estado mínimo; sus autores son Smith, Ricardo, Malthus y Mill. Su gran límite fue el exceso de confianza en el equilibrio automático (ley de Say), que abriría paso a la crítica marxista y a Keynes.`,
+"Economía clásica francesa":`Rama francesa de la economía clásica (s. XIX), de menor complejidad que la inglesa pero con aportaciones igualmente valiosas. Incluye a Jean Baptiste Say (ley de Say y teoría del valor por utilidad), Charles Dunoyer (libertad casi hasta la anarquía económica) y Frédéric Bastiat (sátiras contra el proteccionismo).`,
+"Primeras críticas":`Conjunto de economistas franceses y alemanes que, tras la muerte de Ricardo y a principios del s. XIX, formularon las primeras críticas al pensamiento clásico antes de Marx. Sus figuras son Georg Friedrich List, que defendía el proteccionismo temporal para la industria naciente, y Sismondi, que se oponía a la ley de Say y advertía de la superproducción.`,
+"Crítica marxista":`Corriente del s. XIX que representa la mayor oposición al pensamiento clásico, encabezada por Karl Marx. Denunció las tensiones internas del capitalismo entre capital y trabajo —la plusvalía, la explotación y la lucha de clases— y pronosticó su colapso. Aunque ese colapso no se produjo, su crítica impulsó el debate sobre el papel del Estado y contribuyó al desarrollo del Estado del bienestar y de las economías mixtas.`,
+"Economía neoclásica":`Corriente que surge a finales del s. XIX para profundizar y complementar el pensamiento clásico, introduciendo el análisis matemático y el mercado como asignador de recursos. Su gran aportación fue explicar el valor también por la demanda (utilidad marginal, en la llamada Revolución marginalista) y dotar a la economía de un aparato matemático riguroso; sus autores son Marshall, Walras y Pareto (además de Edgeworth, Hicks y Allen). Su límite fue asumir una racionalidad perfecta del individuo, hoy cuestionada por la economía conductual.`,
+"Economía mixta / Estado del bienestar":`Modelo resultante de la evolución del pensamiento económico y, en particular, de la tensión entre los clásicos y Marx. El propio sistema capitalista absorbió las tensiones entre capital y trabajo mediante mecanismos redistributivos —impuestos progresivos, educación y sanidad públicas—, transaccionando hacia la economía mixta actual, que combina mercado y Estado.`,
+"Crematística":`Término acuñado por Aristóteles para referirse a la acumulación de riqueza como fin en sí mismo. La consideraba contraria a la naturaleza y la oponía a la "oikonomía", la administración del hogar orientada al bienestar.`,
+"Precio justo":`Idea central de la escolástica medieval que reflexiona sobre la moralidad de los precios: el precio debe ser "justo" y los comerciantes no deben lucrarse excesivamente. Se enmarca en la preocupación por el reparto equitativo de la riqueza y hoy resuena en debates como el salario mínimo o el comercio justo.`,
+"Teoría cuantitativa del dinero":`Idea que relaciona el aumento de la masa monetaria (liquidez) con la subida de los precios (inflación). Fue anticipada por la Escuela de Salamanca en el s. XVI, al observar cómo la plata llegada de América elevaba los precios.`,
+"Proteccionismo":`Política consistente en limitar las importaciones —mediante aranceles y cupos— para favorecer la producción nacional. Es central en el mercantilismo (para no perder oro y plata) y reaparece de forma matizada en List (protección temporal a la industria naciente) y hoy en las políticas de Trump o de la UE.`,
+"Laissez faire":`Expresión ("dejen hacer, dejen pasar") acuñada por los fisiócratas para defender la libertad económica frente al comercio y frente al intervencionismo. Constituye una de las bases del pensamiento clásico y del liberalismo posterior.`,
+"Flujo circular de la renta (Tableau)":`Esquema circulatorio de la economía que representa cómo circulan los bienes y el dinero entre los agentes. Su precedente es el "Tableau Économique" de Quesnay (1758), muy parecido al flujo circular actual, aunque sin incluir al Estado.`,
+"Ley de rendimientos decrecientes":`Principio según el cual, al añadir sucesivas unidades de un factor, cada una aporta cada vez menos producción. La formuló Turgot para la agricultura (1767), y después Ricardo la aplicó a la producción de un país (estado estacionario) y Malthus a la población.`,
+"Mano invisible":`Metáfora de Adam Smith según la cual cada individuo, al buscar su propio interés, es guiado por el mercado como por una mano invisible y, al obtener su beneficio, contribuye al beneficio colectivo. Justifica que el mercado pueda coordinar la economía sin planificación central y con un Estado mínimo.`,
+"Teoría del valor-trabajo":`Teoría según la cual el valor de un producto se mide por la cantidad de trabajo, físico e intelectual, que incorpora, a diferencia del precio, que lo fija la oferta y la demanda. La sostienen Smith y Ricardo, y de ella parte Marx para desarrollar la plusvalía.`,
+"División del trabajo":`Fragmentación del proceso productivo en tareas sencillas que permite a los trabajadores especializarse, ganar destreza y ahorrar tiempo. Para Smith es un motor de la productividad; Marx, en cambio, la asocia a la sustitución del hombre por las máquinas y a la pérdida de empleo.`,
+"Ventaja absoluta":`Concepto de Adam Smith según el cual cada país debe especializarse en producir aquello en lo que es más eficiente que los demás y comerciar el resto.`,
+"Ventaja comparativa":`Concepto de David Ricardo según el cual un país debe especializarse en los productos en los que tenga mayor ventaja o menor desventaja comparativa, aunque tenga desventaja absoluta en todos. Es la base moderna del comercio internacional y de la globalización.`,
+"Estado estacionario":`Situación que David Ricardo anticipa a largo plazo: por los rendimientos decrecientes, cada trabajador aporta cada vez menos producción hasta que esta deja de crecer y se estabiliza.`,
+"Ley de Say":`Principio, formulado por Jean Baptiste Say, según el cual "la oferta crea su propia demanda": al producir se generan las rentas que sostienen la demanda, por lo que no puede haber crisis general por falta de demanda y se tiende al pleno empleo. Fue aceptada por casi todos los clásicos (salvo Malthus) hasta que Keynes la cuestionó.`,
+"Teoría del valor-utilidad":`Teoría del valor de Say según la cual no es el trabajo lo que mide el valor de los bienes, sino la utilidad que aportan al individuo. Anticipa la utilidad marginal de los neoclásicos.`,
+"Plusvalía":`Concepto central de Marx: la diferencia entre el valor que genera el trabajador y el salario que percibe, que es apropiada por el empresario. Constituye la base de la explotación capitalista y del enfrentamiento de intereses que da lugar a la lucha de clases.`,
+"Materialismo dialéctico":`Método de Marx, también llamado "socialismo científico", para explicar los fenómenos sociales mediante leyes objetivas en lugar de ideales. Aplicado a la historia, sostiene que el motor de los cambios sociales es la forma en que las personas satisfacen sus necesidades.`,
+"Lucha de clases":`Enfrentamiento de intereses contrapuestos entre la clase capitalista y la trabajadora que, según Marx, deriva de la apropiación de la plusvalía por parte del empresario.`,
+"Ejército industrial de parados":`Expresión de Marx para la masa de desempleados que genera la creciente mecanización. Al no tener ingresos, no pueden adquirir productos, lo que provocaría la caída de los empresarios y el colapso del sistema.`,
+"Utilidad marginal / marginalismo":`Utilidad que aporta consumir una unidad adicional de un bien; suele ser decreciente y puede llegar a 0, punto en que la utilidad total es máxima. Es el núcleo de la Revolución marginalista neoclásica, que explica el valor también por la demanda y no solo por la oferta.`,
+"Paradoja del valor (agua-diamante)":`Dilema planteado por Adam Smith: por qué el agua, tan útil, es tan barata, y los diamantes, innecesarios, son tan caros. Los neoclásicos lo resuelven con la utilidad marginal: al ser el agua abundante, su utilidad marginal —y su precio— es baja, mientras que los diamantes, escasos, tienen una utilidad marginal alta.`,
+"Tijeras marshallianas":`Modelo de Alfred Marshall que explica la formación del equilibrio de mercado por la acción conjunta de la oferta (con costes marginales crecientes) y la demanda (con utilidad marginal decreciente).`,
+"Equilibrio general":`Aportación de Léon Walras que demuestra, mediante un sistema de ecuaciones simultáneas, que todos los mercados de una economía pueden alcanzar el equilibrio de forma interdependiente.`,
+"Curvas de indiferencia":`Conjuntos de combinaciones de bienes para las que la satisfacción del consumidor es idéntica. El concepto lo crea Edgeworth (1881), lo dibuja Pareto (1906) y lo popularizan Hicks y Allen.`,
+"Óptimo de Pareto":`Concepto de Vilfredo Pareto que define el punto de equilibrio en el que ningún agente puede mejorar su situación sin reducir el bienestar de otro. Es un criterio básico de eficiencia económica.`,
+"Bienes públicos (el faro)":`Bienes de los que resulta difícil excluir a nadie, ilustrados con el ejemplo del faro. El ejemplo lo creó John Stuart Mill y lo popularizó Paul Samuelson.`,
+"Periodo pre-científico vs científico":`Distinción, apoyada en Galbraith, entre dos etapas del pensamiento económico: un periodo pre-científico, hasta mitad del s. XVIII, en el que la economía va unida a la filosofía y carece de crítica organizada, y un periodo científico que comienza con Adam Smith, cuando la economía pasa a ser una ciencia independiente.`
+};
+
+/* ===================== LÓGICA ===================== */
+const DIM = [
+  ["Época / fecha","ep"],["Corriente","corr"],["En una frase","res"],["Aportación / idea clave","ap"],
+  ["Teoría del valor","val"],["Origen de la riqueza","riq"],["Papel del Estado / mercado","est"],
+  ["Postura ante la ley de Say","say"],["Obra(s)","obra"],["Cita","cita"],
+  ["Relación / influencia","rel"],["Ejemplo actual","ej"],["Límite / crítica","lim"]
+];
+const GDIM = [
+  ["Corriente","gCorr"],["Siglo / época","gSig"],["Teoría del valor","gVal"],
+  ["Origen de la riqueza","gRiq"],["Papel del Estado","gEst"],["Postura ley de Say","gSay"]
+];
+const TIPO_LABEL = {autor:"Autor",corriente:"Corriente",teoria:"Teoría / concepto"};
+const TIPO_BADGE = {autor:"b-autor",corriente:"b-corriente",teoria:"b-teoria"};
+
+let filterTipo = 'all';
+const selected = new Set();
+
+/* filtros por tipo */
+const FILTERS = [["all","Todos"],["autor","Autores"],["corriente","Corrientes"],["teoria","Teorías y conceptos"]];
+document.getElementById('filters').innerHTML = FILTERS.map(f=>
+  `<button class="chip ${f[0]==='all'?'active':''}" data-k="${f[0]}" onclick="setFilter('${f[0]}')">${f[1]}</button>`).join('');
+function setFilter(k){ filterTipo=k;
+  document.querySelectorAll('#filters .chip').forEach(c=>c.classList.toggle('active',c.dataset.k===k));
+  renderGrid(); }
+
+function renderGrid(){
+  const q=document.getElementById('search').value.trim().toLowerCase();
+  const grid=document.getElementById('grid');
+  grid.innerHTML = ITEMS.map((it,i)=>{
+    if(filterTipo!=='all' && it.tipo!==filterTipo) return '';
+    if(q && !it.n.toLowerCase().includes(q) && !(it.res||'').toLowerCase().includes(q) && !(it.corr||'').toLowerCase().includes(q)) return '';
+    return `<div class="item ${selected.has(i)?'sel':''}" onclick="toggle(${i})">
+      <span class="k">${it.n}</span>
+      <span class="badge ${TIPO_BADGE[it.tipo]}">${TIPO_LABEL[it.tipo]}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggle(i){ selected.has(i)?selected.delete(i):selected.add(i); renderGrid(); renderSel(); renderOut(); }
+function clearSel(){ selected.clear(); renderGrid(); renderSel(); renderOut(); }
+
+function renderSel(){
+  const row=document.getElementById('selrow');
+  if(selected.size===0){ row.innerHTML=`<span class="selhint">Nada seleccionado todavía — toca los ítems de abajo.</span>`; return; }
+  let html = [...selected].map(i=>`<span class="seltag" onclick="toggle(${i})">${ITEMS[i].n} ✕</span>`).join('');
+  html += `<button class="btn" onclick="clearSel()">Limpiar</button>`;
+  html += `<span class="selhint">&nbsp;${selected.size} seleccionado${selected.size>1?'s':''}</span>`;
+  row.innerHTML=html;
+}
+
+function renderOut(){
+  const out=document.getElementById('out');
+  const sel=[...selected];
+  if(sel.length===0){ out.innerHTML=`<div class="hint">👆 Toca <b>un ítem</b> para ver su ficha completa, o <b>dos o más</b> para generar un cuadro comparativo con sus coincidencias y diferencias.</div>`; return; }
+  if(sel.length===1){ out.innerHTML=detailHTML(sel[0]); return; }
+  out.innerHTML = analysisHTML(sel) + tableHTML(sel);
+}
+
+function esc(s){ return (s==null?'':String(s)); }
+
+function detailHTML(i){
+  const it=ITEMS[i];
+  const parrafo = PARRAFOS[it.n] || it.res || '';
+  let rows = DIM.map(([lbl,key])=> (key==='res'? '' : (it[key]?`<div class="drow"><div class="lbl">${lbl}</div><div class="val">${esc(it[key])}</div></div>`:''))).join('');
+  return `<div class="detail">
+    <h2>${it.n}</h2>
+    <span class="badge ${TIPO_BADGE[it.tipo]}">${TIPO_LABEL[it.tipo]}</span>
+    ${parrafo?`<p class="resumen-p">${esc(parrafo)}</p>`:''}
+    ${rows}
+  </div>`;
+}
+
+function analysisHTML(sel){
+  let comunes=[], difs=[];
+  GDIM.forEach(([lbl,key])=>{
+    const vals=sel.map(i=>ITEMS[i][key]).filter(Boolean);
+    if(vals.length>=2){
+      const uniq=[...new Set(vals)];
+      if(uniq.length===1) comunes.push(`<div class="aline c"><b>${lbl}:</b> ${uniq[0]}</div>`);
+      else difs.push(`<div class="aline d"><b>${lbl}:</b> ${uniq.join(' &nbsp;·vs·&nbsp; ')}</div>`);
+    }
+  });
+  const c = comunes.length?comunes.join(''):`<div class="aempty">No comparten ninguna de las dimensiones clave etiquetadas.</div>`;
+  const d = difs.length?difs.join(''):`<div class="aempty">Coinciden en todas las dimensiones clave etiquetadas.</div>`;
+  return `<div class="analysis">
+    <h3>Análisis rápido (${sel.length} ítems)</h3>
+    <div style="margin-bottom:10px"><b style="color:var(--good)">En común</b>${c}</div>
+    <div><b style="color:var(--bad)">Se diferencian en</b>${d}</div>
+  </div>`;
+}
+
+function tableHTML(sel){
+  const head = `<th>Dimensión</th>` + sel.map(i=>`<th>${ITEMS[i].n}<br><span style="font-weight:400;font-size:.72rem;opacity:.85">${TIPO_LABEL[ITEMS[i].tipo]}</span></th>`).join('');
+  // 1.ª fila destacada: párrafo-resumen de cada ítem
+  let body = `<tr class="sumrow"><th>Resumen</th>` + sel.map(i=>`<td>${esc(PARRAFOS[ITEMS[i].n]||ITEMS[i].res||ITEMS[i].ap||'—')}</td>`).join('') + `</tr>`;
+  DIM.forEach(([lbl,key])=>{
+    if(key==='res') return; // el resumen ya va en la primera fila
+    if(sel.some(i=>ITEMS[i][key])){
+      body += `<tr><th>${lbl}</th>` + sel.map(i=>`<td>${ITEMS[i][key]?esc(ITEMS[i][key]):'—'}</td>`).join('') + `</tr>`;
+    }
+  });
+  return `<div class="tablewrap"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+/* arranque */
+renderGrid(); renderSel(); renderOut();
+</script>
+</body>
+</html>
